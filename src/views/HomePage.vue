@@ -2,7 +2,7 @@
   <div class="dashboard">
     <h2>Suivi des performances du réseau</h2>
     <div class="charts">
-      <NetworkChart />
+      <!-- <NetworkChart /> -->
     </div>
     <div class="map">
       <NetworkMap />
@@ -11,13 +11,13 @@
 </template>
 
 <script>
-import NetworkChart from "../components/NetworkChart.vue";
+//import NetworkChart from "../components/NetworkChart.vue";
 import NetworkMap from "../components/NetworkMap.vue";
 
 export default {
   name: "HomePage",
   components: {
-    NetworkChart,
+    //NetworkChart,
     NetworkMap,
   },
 };
