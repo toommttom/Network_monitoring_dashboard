@@ -1,27 +1,28 @@
-import Vue from "vue";
-import Router from "vue-router";
-import Home from "./views/Home.vue";
-import AddTableauPage from "./views/AddTableauPage.vue";
-import EditTableau from "./components/EditTableau.vue";
+import { createRouter, createWebHistory } from "vue-router";
+import HomePage from "../views/HomePage.vue";
+import MapPage from "../views/MapPage.vue";
 
-Vue.use(Router);
+const routes = [
+  {
+    path: "/",
+    name: "home",
+    component: HomePage,
+  },
+  {
+    path: "/map",
+    name: "map",
+    component: MapPage,
+  },
+  // {
+  //   path: "/charts",
+  //   name: "charts",
+  //   component: ChartsPage,
+  // },
+];
 
-export default new Router({
-  routes: [
-    {
-      path: "/",
-      name: "home",
-      component: Home,
-    },
-    {
-      path: "/addtableaux",
-      name: "add",
-      component: AddTableauPage,
-    },
-    {
-      path: "/modifier_tableau/:id",
-      name: "edit",
-      component: EditTableau,
-    },
-  ],
+const router = createRouter({
+  history: createWebHistory(process.env.BASE_URL), // Utiliser l'historique HTML5
+  routes, // Définir les routes
 });
+
+export default router;

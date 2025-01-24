@@ -1,32 +1,32 @@
 <template>
-  <div class="dashboard">
-    <h2>Suivi des performances du réseau</h2>
-    <div class="charts">
-      <!-- <NetworkChart /> -->
+  <div class="MapDashboard">
+    <h2>Map</h2>
+    <div class="map">
+      <NetworkMap />
     </div>
   </div>
 </template>
 
 <script>
-//import NetworkChart from "../components/NetworkChart.vue";
+import NetworkMap from "../components/NetworkMap.vue";
 
 export default {
-  name: "HomePage",
+  name: "MapPage",
   components: {
-    //NetworkChart,
+    NetworkMap,
   },
 };
 </script>
 
 <style>
-.dashboard {
+.MapDashboard {
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 20px;
 }
 
-Charts .charts,
+.charts,
 .map {
   margin: 20px 0;
   width: 80%;
