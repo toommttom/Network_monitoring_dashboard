@@ -1,8 +1,12 @@
 <template>
   <div class="dashboard">
     <h2>Suivi des performances du réseau</h2>
-    
+
     <div class="charts">
+      <NetworkPieChart />
+    </div>
+
+    <!-- <div class="charts">
       <LatencyChart />
     </div>
 
@@ -12,21 +16,23 @@
 
     <div class="charts">
       <ThroughputChart />
-    </div>
+    </div> -->
   </div>
 </template>
 
 <script>
-import LatencyChart from "../components/LatencyChart.vue";
-import JitterChart from "../components/JitterChart.vue";
-import ThroughputChart from "../components/ThroughputChart.vue";
+// import LatencyChart from "../components/LatencyChart.vue";
+// import JitterChart from "../components/JitterChart.vue";
+// import ThroughputChart from "../components/ThroughputChart.vue";
+import NetworkPieChart from "../components/NetworkPieChart.vue";
 
 export default {
   name: "HomePage",
   components: {
-    LatencyChart,
-    JitterChart,
-    ThroughputChart,
+    // LatencyChart,
+    // JitterChart,
+    // ThroughputChart,
+    NetworkPieChart,
   },
 };
 </script>

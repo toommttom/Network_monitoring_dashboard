@@ -1,0 +1,5 @@
+Num_Test,ID_user,Ville,Input,Technologie_Reseau,Output,Date_Performance,Moment du ping,Latence,Jitter,IP_source,server_name,IP_destination,Port_source,Port_destination,PacketsLoss,Throuput
+1,AMOUR 3,PARIS,Microphone et audio-card,5G,Without headphones,2024-11-08 15:49:59.192210,2024-11-08 15:50:04.251546,94.51,0,192.168.229.241,Directory Server,62.113.204.104,61765,22124,0.0,2454.766691355412
+2,AMOUR 3,PARIS,Microphone et audio-card,5G,Without headphones,2024-11-08 15:49:59.192210,2024-11-08 15:50:05.990710,90.5,4.010000000000005,192.168.229.241,Directory Server,62.113.204.104,56242,22124,0.0,2563.53591160221
+3,AMOUR 3,PARIS,Microphone et audio-card,5G,Without headphones,2024-11-08 15:49:59.192210,2024-11-08 15:50:07.952019,92.97,2.469999999999999,192.168.229.241,Directory Server,62.113.204.104,56243,22124,0.0,2495.428632892331
+4,AMOUR 3,PARIS,Microphone et audio-card,5G,Without headphones,2024-11-08 15:49:59.192210,2024-11-08 15:50:10.050185,94.39,1.4200000000000017,192.168.229.241,Directory Server,62.113.204.104,56244,22124,0.0,2457.8874880813646
