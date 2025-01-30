@@ -1,7 +1,7 @@
 <template>
   <div class="chart-container">
-    <h2>Répartition des Technologies Réseau</h2>
-    <canvas ref="pieChartCanvas"></canvas>
+    <h2>Répartition des Outputs</h2>
+    <canvas ref="outputChartCanvas"></canvas>
   </div>
 </template>
 
@@ -11,9 +11,9 @@ import Chart from "chart.js/auto";
 import axios from "axios";
 
 export default {
-  name: "NetworkPieChart",
+  name: "NetworkOutputChart",
   setup() {
-    const pieChartCanvas = ref(null);
+    const outputChartCanvas = ref(null);
     let chartInstance = null;
 
     onMounted(async () => {
@@ -22,30 +22,29 @@ export default {
         const response = await axios.get("http://127.0.0.1:5000/api/data");
         const data = response.data;
 
-        // Comptabiliser la répartition des technologies réseau
-        const technologieCounts = {};
+        // Comptabiliser la répartition des Outputs
+        const outputCounts = {};
         data.forEach((item) => {
-          technologieCounts[item.Technologie_Reseau] =
-            (technologieCounts[item.Technologie_Reseau] || 0) + 1;
+          outputCounts[item.Output] = (outputCounts[item.Output] || 0) + 1;
         });
 
         // Préparer les données pour Chart.js
-        const labels = Object.keys(technologieCounts);
-        const values = Object.values(technologieCounts);
+        const labels = Object.keys(outputCounts);
+        const values = Object.values(outputCounts);
 
-        // Détruire l'ancienne instance si elle existe (évite les bugs en réactualisant le composant)
+        // Détruire l'ancienne instance si elle existe
         if (chartInstance) {
           chartInstance.destroy();
         }
 
         // Initialisation du Pie Chart
-        chartInstance = new Chart(pieChartCanvas.value, {
+        chartInstance = new Chart(outputChartCanvas.value, {
           type: "pie",
           data: {
             labels: labels,
             datasets: [
               {
-                label: "Technologies Réseau",
+                label: "Outputs",
                 data: values,
                 backgroundColor: [
                   "#FF6384",
@@ -62,13 +61,8 @@ export default {
           options: {
             responsive: true,
             plugins: {
-              legend: {
-                position: "bottom",
-              },
-              title: {
-                display: true,
-                text: "Proportion des Technologies Réseau",
-              },
+              legend: { position: "bottom" },
+              title: { display: true, text: "Proportion des Outputs" },
             },
           },
         });
@@ -77,7 +71,7 @@ export default {
       }
     });
 
-    return { pieChartCanvas };
+    return { outputChartCanvas };
   },
 };
 </script>
