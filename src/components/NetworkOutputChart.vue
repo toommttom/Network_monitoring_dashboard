@@ -1,6 +1,6 @@
 <template>
   <div class="chart-container">
-    <h2>Répartition des Outputs</h2>
+    <h2>Outputs</h2>
     <canvas ref="outputChartCanvas"></canvas>
   </div>
 </template>

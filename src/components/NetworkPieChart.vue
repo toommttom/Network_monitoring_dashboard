@@ -1,6 +1,6 @@
 <template>
   <div class="chart-container">
-    <h2>Répartition des Technologies Réseau</h2>
+    <h2>Technologies Réseau</h2>
     <canvas ref="pieChartCanvas"></canvas>
   </div>
 </template>

@@ -6,6 +6,7 @@ from app import app
 
 @app.route('/api/data', methods=['GET'])
 def get_data():
+    # folder_path = os.path.abspath("backend/app/data/Trace")
     folder_path = "backend/app/data/Trace/"  # Dossier contenant les fichiers CSV
     csv_files = glob.glob(os.path.join(folder_path, "*.csv"))  # Liste de tous les fichiers CSV
     

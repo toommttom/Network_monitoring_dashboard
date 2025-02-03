@@ -1,6 +1,6 @@
 <template>
   <div class="chart-container">
-    <h2>Répartition des Inputs</h2>
+    <h2>Inputs</h2>
     <canvas ref="inputChartCanvas"></canvas>
   </div>
 </template>

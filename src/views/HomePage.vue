@@ -11,25 +11,10 @@
     <div class="charts">
       <JitterChartWithFilter />
     </div>
-
-    <!-- <div class="charts">
-      <LatencyChart />
-    </div>
-
-    <div class="charts">
-      <JitterChart />
-    </div>
-
-    <div class="charts">
-      <ThroughputChart />
-    </div> -->
   </div>
 </template>
 
 <script>
-// import LatencyChart from "../components/LatencyChart.vue";
-// import JitterChart from "../components/JitterChart.vue";
-// import ThroughputChart from "../components/ThroughputChart.vue";
 import NetworkPieChart from "../components/NetworkPieChart.vue";
 import NetworkInputChart from "../components/NetworkInputChart.vue";
 import NetworkOutputChart from "../components/NetworkOutputChart.vue";
@@ -38,9 +23,6 @@ import JitterChartWithFilter from "../components/JitterChartWithFilter.vue";
 export default {
   name: "HomePage",
   components: {
-    // LatencyChart,
-    // JitterChart,
-    // ThroughputChart,
     NetworkPieChart,
     NetworkInputChart,
     NetworkOutputChart,
@@ -59,24 +41,24 @@ export default {
   min-height: 100vh;
 }
 
-/* Conteneur des graphiques en ligne */
+/* Utilisation d'une grille pour aligner les trois premiers charts */
 .charts-container {
-  display: flex;
-  flex-wrap: wrap; /* Permet le retour à la ligne si l'écran est petit */
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 colonnes de même largeur */
   gap: 20px; /* Espace entre les charts */
   width: 90%;
   max-width: 1200px;
+  justify-content: center;
 }
 
-/* Style des graphiques */
+/* Assurer la même taille pour chaque graphique */
 .chart-card {
   background: white;
   padding: 15px;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 280px; /* Taille réduite */
-  height: 280px;
+  width: 320px; /* Taille uniforme */
+  height: 320px;
   display: flex;
   flex-direction: column;
   align-items: center;
