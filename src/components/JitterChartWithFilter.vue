@@ -169,15 +169,14 @@ export default {
 
 <style scoped>
 .container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
-  background-color: #f4f6f8;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 1200px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  .container {
+    max-height: 500px; /* Empêche la prise de toute la hauteur */
+    overflow-y: auto; /* Permet le scroll si nécessaire */
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 }
 
 /* Conteneur des boutons radio */
@@ -229,7 +228,6 @@ input[type="radio"] {
   overflow: hidden;
 }
 
-/* Ajuster la taille des canvas pour qu'ils ne débordent pas */
 canvas {
   width: 100% !important;
   height: 100% !important;

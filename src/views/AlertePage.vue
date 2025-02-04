@@ -17,7 +17,7 @@
 
     <!-- Détails du fichier sélectionné -->
     <div v-if="selectedFile" class="file-details">
-      <h3>Détails du fichier : {{ selectedFile }}</h3>
+      <h3>Données du fichier : {{ selectedFile }}</h3>
       <table>
         <thead>
           <tr>
@@ -57,7 +57,7 @@ export default {
     const selectedFile = ref(null);
     const fileData = ref([]);
 
-    // Charger la liste des fichiers
+    // Charger la liste des fichiers et détecter anomalies
     onMounted(async () => {
       try {
         const response = await axios.get("http://localhost:5000/api/files");
@@ -130,26 +130,29 @@ export default {
   background-color: #f8f9fa;
   border-radius: 8px;
   width: 90%;
-  max-width: 1200px;
+  max-width: 800px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Style de la liste des fichiers */
+/* Liste des fichiers en colonne */
 .file-list {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 10px;
-  justify-content: center;
-  margin-bottom: 15px;
+  width: 100%;
+  align-items: center;
 }
 
+/* Style de chaque fichier */
 .file-item {
   background: white;
-  padding: 10px;
+  padding: 10px 15px;
   border-radius: 5px;
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: 0.3s;
+  text-align: center;
+  width: 70%;
 }
 
 .file-item:hover {
@@ -167,9 +170,10 @@ export default {
 .file-details {
   background: white;
   padding: 20px;
+  margin-top: 10px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 80%;
+  width: 90%;
   overflow-x: auto;
 }
 

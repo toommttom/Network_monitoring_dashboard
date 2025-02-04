@@ -33,6 +33,7 @@ export default {
 
 <style scoped>
 .dashboard {
+  flex: 1; /* Permet de prendre tout l'espace disponible */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -63,5 +64,15 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+.charts {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-top: 20px;
+  max-height: 500px; /* Limite la hauteur */
+  overflow-y: auto; /* Ajoute un scroll si besoin */
 }
 </style>

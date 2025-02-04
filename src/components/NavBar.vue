@@ -24,9 +24,12 @@ export default {
 
 <style scoped>
 #navbar {
+  width: 250px; /* Ou autre largeur */
+  background-color: #2c3e50;
+  height: 100vh; /* Prend toute la hauteur de l'écran */
   display: flex;
-  height: 100vh;
-  margin: 0;
+  flex-direction: column;
+  padding-top: 20px;
 }
 
 .vertical-navbar {

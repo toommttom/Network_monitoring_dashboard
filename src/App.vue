@@ -34,7 +34,7 @@ h1 {
 
 .main-layout {
   display: flex;
-  height: calc(100vh - 80px);
+  height: 100vh;
 }
 
 .content {
