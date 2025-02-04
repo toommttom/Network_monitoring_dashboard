@@ -4,9 +4,20 @@ import pandas as pd
 from flask import jsonify
 from app import app
 
+
+#================= Fonction pour normaliser les dates
+def format_dates(df):
+    date_columns = ["Date_Performance", "Moment du ping"]  # Colonnes à formater
+
+    for col in date_columns:
+        if col in df.columns:
+            df[col] = pd.to_datetime(df[col], errors="coerce")  # Convertir en datetime, gérer erreurs
+            df[col] = df[col].dt.strftime("%Y-%m-%d %H:%M:%S")  # Uniformiser en YYYY-MM-DD HH:mm:ss
+
+    return df
+
 @app.route('/api/data', methods=['GET'])
 def get_data():
-    # folder_path = os.path.abspath("backend/app/data/Trace")
     folder_path = "backend/app/data/Trace/"  # Dossier contenant les fichiers CSV
     csv_files = glob.glob(os.path.join(folder_path, "*.csv"))  # Liste de tous les fichiers CSV
     
@@ -18,6 +29,7 @@ def get_data():
     for file in csv_files:
         df = pd.read_csv(file)  # Lire le CSV
         df["source_file"] = os.path.basename(file)  # Ajouter une colonne pour identifier la source
+        df = format_dates(df)  #  Normaliser les dates
         all_data.append(df)
 
     final_df = pd.concat(all_data, ignore_index=True)  # Fusionner tous les fichiers en un seul DataFrame
@@ -33,6 +45,7 @@ def get_specific_data(filename):
         return jsonify({"error": f"Fichier {filename} introuvable"}), 404
 
     df = pd.read_csv(file_path)
+    df = format_dates(df)
     return jsonify(df.to_dict(orient='records'))
 
 @app.route('/api/files', methods=['GET'])

@@ -9,7 +9,7 @@
           <router-link to="/map" active-class="active">Map</router-link>
         </li>
         <li>
-          <router-link to="/charts" active-class="active">Alerte</router-link>
+          <router-link to="/alerte" active-class="active">Alerte</router-link>
         </li>
       </ul>
     </nav>

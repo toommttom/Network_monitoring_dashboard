@@ -21,6 +21,9 @@ export default {
         // Récupération des données depuis l'API Flask
         const response = await axios.get("http://127.0.0.1:5000/api/data");
         const data = response.data;
+        // console.log(" JSON brut reçu de l'API :", response.data);
+        // console.log("➡ Type de `response.data` :", typeof response.data);
+        // console.log("➡ Est-ce un tableau ? :", Array.isArray(response.data));
 
         // Comptabiliser la répartition des Inputs
         const inputCounts = {};

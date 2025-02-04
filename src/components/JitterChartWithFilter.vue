@@ -2,15 +2,18 @@
   <div class="container">
     <h2>Analyse des Performances Réseau</h2>
 
-    <!-- Liste des fichiers avec Checkboxes -->
+    <!-- Liste des fichiers avec Boutons Radio -->
     <div class="file-selection">
-      <label v-for="file in availableFiles" :key="file" class="checkbox-label">
-        <input type="checkbox" v-model="selectedFiles" :value="file" />
+      <label v-for="file in availableFiles" :key="file" class="radio-label">
+        <input
+          type="radio"
+          v-model="selectedFile"
+          :value="file"
+          @change="fetchSelectedData"
+        />
         {{ file }}
       </label>
     </div>
-
-    <button @click="fetchSelectedData" class="load-btn">Charger</button>
 
     <!-- Conteneur des trois graphiques -->
     <div class="charts-container">
@@ -36,7 +39,7 @@ import Chart from "chart.js/auto";
 import axios from "axios";
 
 export default {
-  name: "JitterChartWithCheckbox",
+  name: "JitterChartWithRadio",
   setup() {
     const jitterChartCanvas = ref(null);
     const latencyChartCanvas = ref(null);
@@ -45,7 +48,7 @@ export default {
     let latencyChartInstance = ref(null);
     let throughputChartInstance = ref(null);
     const availableFiles = ref([]);
-    const selectedFiles = ref([]);
+    const selectedFile = ref(null);
 
     // Charger la liste des fichiers disponibles au montage
     onMounted(async () => {
@@ -57,23 +60,15 @@ export default {
       }
     });
 
-    // Charger les données des fichiers sélectionnés
+    // Charger les données du fichier sélectionné
     const fetchSelectedData = async () => {
-      if (selectedFiles.value.length === 0) {
-        alert("Veuillez sélectionner au moins un fichier.");
-        return;
-      }
+      if (!selectedFile.value) return;
 
       try {
-        let allData = [];
-        for (let file of selectedFiles.value) {
-          const response = await axios.get(
-            `http://localhost:5000/api/data/${file}`
-          );
-          allData = allData.concat(response.data);
-        }
-
-        updateCharts(allData);
+        const response = await axios.get(
+          `http://localhost:5000/api/data/${selectedFile.value}`
+        );
+        updateCharts(response.data);
       } catch (error) {
         console.error("Erreur lors du chargement des données :", error);
       }
@@ -165,7 +160,7 @@ export default {
       latencyChartCanvas,
       throughputChartCanvas,
       availableFiles,
-      selectedFiles,
+      selectedFile,
       fetchSelectedData,
     };
   },
@@ -185,12 +180,7 @@ export default {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-h2 {
-  font-size: 22px;
-  margin-bottom: 15px;
-}
-
-/* Conteneur des checkboxes */
+/* Conteneur des boutons radio */
 .file-selection {
   display: flex;
   flex-wrap: wrap;
@@ -199,7 +189,7 @@ h2 {
   margin-bottom: 15px;
 }
 
-.checkbox-label {
+.radio-label {
   display: flex;
   align-items: center;
   background: white;
@@ -209,38 +199,24 @@ h2 {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-input[type="checkbox"] {
+input[type="radio"] {
   margin-right: 8px;
-}
-
-.load-btn {
-  background-color: #007bff;
-  color: white;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  margin-bottom: 15px;
-}
-
-.load-btn:hover {
-  background-color: #0056b3;
 }
 
 /* Conteneur des graphiques */
 .charts-container {
   display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
   justify-content: center;
+  align-items: center;
+  gap: 20px;
   width: 100%;
+  flex-wrap: nowrap; /* Évite que les graphiques se mettent sur une nouvelle ligne */
 }
 
-/* Style des cartes des graphiques */
+/* Style uniforme des cartes contenant les graphiques */
 .chart-card {
   background: white;
-  padding: 15px;
+  padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   width: 30%;
@@ -250,5 +226,14 @@ input[type="checkbox"] {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+}
+
+/* Ajuster la taille des canvas pour qu'ils ne débordent pas */
+canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 280px;
+  max-height: 280px;
 }
 </style>
