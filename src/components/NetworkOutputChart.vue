@@ -20,13 +20,22 @@ export default {
       try {
         // Récupération des données depuis l'API Flask
         const response = await axios.get("http://127.0.0.1:5000/api/data");
+        console.log("Réponse API:", response.data); // 🔍 Vérifie ce qui est reçu
         const data = response.data;
 
         // Comptabiliser la répartition des Outputs
         const outputCounts = {};
-        data.forEach((item) => {
-          outputCounts[item.Output] = (outputCounts[item.Output] || 0) + 1;
-        });
+
+        if (Array.isArray(data)) {
+          for (const item of data) {
+            if (item.Output) {
+              // Vérifie que `Output` existe et n'est pas vide
+              outputCounts[item.Output] = (outputCounts[item.Output] || 0) + 1;
+            }
+          }
+        } else {
+          console.error("Erreur: `data` n'est pas un tableau valide", data);
+        }
 
         // Préparer les données pour Chart.js
         const labels = Object.keys(outputCounts);

@@ -1,0 +1,4 @@
+Num_Test,ID_user,Ville,Input,Technologie_Reseau,Output,Date_Performance,MOS,Moment du ping,Latence,Jitter,IP_source,server_name,IP_destination,Port_source,Port_destination,PacketsLoss,Throuput
+1,aaaaazz,PARIS,Midi et audio-card,Wifi,Without headphones,2024-11-15 17:49:42.429149,1,2024-11-15 17:49:45.915767,13.19,0,10.68.252.10,Andre's UK Sound,139.162.251.38,63838,22124,0.0,17589.082638362397
+2,aaaaazz,PARIS,Midi et audio-card,Wifi,Without headphones,2024-11-15 17:49:42.429149,1,2024-11-15 17:49:47.919936,12.97,0.21999999999999886,10.68.252.10,Andre's UK Sound,139.162.251.38,63839,22124,0.0,17887.432536622975
+3,aaaaazz,PARIS,Midi et audio-card,Wifi,Without headphones,2024-11-15 17:49:42.429149,1,2024-11-15 17:49:49.965756,17.12,4.15,10.68.252.10,Andre's UK Sound,139.162.251.38,58800,22124,0.0,13551.401869158877

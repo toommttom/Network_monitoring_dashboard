@@ -3,6 +3,7 @@ import glob
 import pandas as pd
 from flask import jsonify
 from app import app
+import numpy as np
 
 
 #================= Fonction pour normaliser les dates
@@ -33,6 +34,8 @@ def get_data():
         all_data.append(df)
 
     final_df = pd.concat(all_data, ignore_index=True)  # Fusionner tous les fichiers en un seul DataFrame
+    final_df = final_df.replace({np.nan: None})
+
     return jsonify(final_df.to_dict(orient='records'))  # Convertir en JSON et retourner
 
 
