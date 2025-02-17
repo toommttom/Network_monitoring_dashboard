@@ -8,7 +8,11 @@ import numpy as np
 
 #================= Fonction pour normaliser les dates
 def format_dates(df):
-    date_columns = ["Date_Performance", "Moment du ping"]  # Colonnes à formater
+    column_rename = {"Moment du ping" : "Moment_du_ping"}
+    df.rename(columns=column_rename, inplace=True)
+
+
+    date_columns = ["Date_Performance", "Moment_du_ping"]  # Colonnes à formater
 
     for col in date_columns:
         if col in df.columns:

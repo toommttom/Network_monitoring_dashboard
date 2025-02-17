@@ -92,7 +92,7 @@ export default {
     };
 
     const updateCharts = (data) => {
-      const labels = data.map((item) => item.Date_Performance);
+      const labels = data.map((item) => item.Moment_du_ping);
       const jitter = data.map((item) => item.Jitter);
       const latency = data.map((item) => item.Latence);
       const throughput = data.map((item) => item.Throuput);
