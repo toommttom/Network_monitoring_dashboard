@@ -15,7 +15,7 @@
       </label>
     </div>
 
-    <!-- Conteneur des trois graphiques -->
+    <!-- Conteneur des graphiques et des infos réseau -->
     <div class="charts-container">
       <div class="chart-card">
         <h3>Jitter</h3>
@@ -28,6 +28,21 @@
       <div class="chart-card">
         <h3>Throughput</h3>
         <canvas ref="throughputChartCanvas"></canvas>
+      </div>
+      <div class="chart-card" v-if="selectedNetwork">
+        <h3>Informations Réseau</h3>
+        <p><strong>Utilisateur :</strong> {{ selectedNetwork.ID_user }}</p>
+        <p><strong>Ville :</strong> {{ selectedNetwork.Ville }}</p>
+        <p><strong>Input :</strong> {{ selectedNetwork.Input }}</p>
+        <p>
+          <strong>Technologie reseau :</strong>
+          {{ selectedNetwork.Technologie_Reseau }}
+        </p>
+        <p><strong>IP Source :</strong> {{ selectedNetwork.IP_source }}</p>
+        <p>
+          <strong>IP Destination :</strong> {{ selectedNetwork.IP_destination }}
+        </p>
+        <p><strong>Serveur :</strong> {{ selectedNetwork.server_name }}</p>
       </div>
     </div>
   </div>
@@ -49,8 +64,8 @@ export default {
     let throughputChartInstance = ref(null);
     const availableFiles = ref([]);
     const selectedFile = ref(null);
+    const selectedNetwork = ref(null);
 
-    // Charger la liste des fichiers disponibles au montage
     onMounted(async () => {
       try {
         const response = await axios.get("http://localhost:5000/api/files");
@@ -60,7 +75,6 @@ export default {
       }
     });
 
-    // Charger les données du fichier sélectionné
     const fetchSelectedData = async () => {
       if (!selectedFile.value) return;
 
@@ -69,12 +83,14 @@ export default {
           `http://localhost:5000/api/data/${selectedFile.value}`
         );
         updateCharts(response.data);
+        if (response.data.length > 0) {
+          selectedNetwork.value = response.data[0];
+        }
       } catch (error) {
         console.error("Erreur lors du chargement des données :", error);
       }
     };
 
-    // Mettre à jour les trois graphiques avec les nouvelles données
     const updateCharts = (data) => {
       const labels = data.map((item) => item.Date_Performance);
       const jitter = data.map((item) => item.Jitter);
@@ -162,6 +178,7 @@ export default {
       availableFiles,
       selectedFile,
       fetchSelectedData,
+      selectedNetwork,
     };
   },
 };

@@ -18,29 +18,21 @@ export default {
 
     onMounted(async () => {
       try {
-        // Récupération des données depuis l'API Flask
         const response = await axios.get("http://127.0.0.1:5000/api/data");
         const data = response.data;
-        // console.log(" JSON brut reçu de l'API :", response.data);
-        // console.log("➡ Type de `response.data` :", typeof response.data);
-        // console.log("➡ Est-ce un tableau ? :", Array.isArray(response.data));
 
-        // Comptabiliser la répartition des Inputs
         const inputCounts = {};
         data.forEach((item) => {
           inputCounts[item.Input] = (inputCounts[item.Input] || 0) + 1;
         });
 
-        // Préparer les données pour Chart.js
         const labels = Object.keys(inputCounts);
         const values = Object.values(inputCounts);
 
-        // Détruire l'ancienne instance si elle existe
         if (chartInstance) {
           chartInstance.destroy();
         }
 
-        // Initialisation du Pie Chart
         chartInstance = new Chart(inputChartCanvas.value, {
           type: "pie",
           data: {

@@ -7,10 +7,6 @@
       <div class="chart-card"><NetworkInputChart /></div>
       <div class="chart-card"><NetworkOutputChart /></div>
     </div>
-
-    <div class="charts">
-      <JitterChartWithFilter />
-    </div>
   </div>
 </template>
 
@@ -18,7 +14,6 @@
 import NetworkPieChart from "../components/NetworkPieChart.vue";
 import NetworkInputChart from "../components/NetworkInputChart.vue";
 import NetworkOutputChart from "../components/NetworkOutputChart.vue";
-import JitterChartWithFilter from "../components/JitterChartWithFilter.vue";
 
 export default {
   name: "HomePage",
@@ -26,7 +21,6 @@ export default {
     NetworkPieChart,
     NetworkInputChart,
     NetworkOutputChart,
-    JitterChartWithFilter,
   },
 };
 </script>
@@ -64,15 +58,5 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-}
-
-.charts {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  margin-top: 20px;
-  max-height: 500px; /* Limite la hauteur */
-  overflow-y: auto; /* Ajoute un scroll si besoin */
 }
 </style>

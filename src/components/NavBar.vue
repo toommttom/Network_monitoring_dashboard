@@ -6,6 +6,9 @@
           <router-link to="/" active-class="active">Home</router-link>
         </li>
         <li>
+          <router-link to="/view" active-class="active">view</router-link>
+        </li>
+        <li>
           <router-link to="/map" active-class="active">Map</router-link>
         </li>
         <li>
