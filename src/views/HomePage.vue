@@ -6,7 +6,11 @@
       <div class="chart-card"><NetworkPieChart /></div>
       <div class="chart-card"><NetworkInputChart /></div>
       <div class="chart-card"><NetworkOutputChart /></div>
+      <div class="chart-card"><EventView /></div>
     </div>
+    <!-- <div class="charts-container">
+      <EventView />
+    </div> -->
   </div>
 </template>
 
@@ -14,6 +18,7 @@
 import NetworkPieChart from "../components/NetworkPieChart.vue";
 import NetworkInputChart from "../components/NetworkInputChart.vue";
 import NetworkOutputChart from "../components/NetworkOutputChart.vue";
+import EventView from "@/components/EventView.vue";
 
 export default {
   name: "HomePage",
@@ -21,6 +26,7 @@ export default {
     NetworkPieChart,
     NetworkInputChart,
     NetworkOutputChart,
+    EventView,
   },
 };
 </script>
@@ -39,8 +45,8 @@ export default {
 /* Utilisation d'une grille pour aligner les trois premiers charts */
 .charts-container {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 colonnes de même largeur */
-  gap: 20px; /* Espace entre les charts */
+  grid-template-columns: repeat(4, 1fr); /* 3 colonnes de même largeur */
+  gap: 10px; /* Espace entre les charts */
   width: 90%;
   max-width: 1200px;
   justify-content: center;

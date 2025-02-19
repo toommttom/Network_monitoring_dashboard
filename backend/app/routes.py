@@ -65,3 +65,45 @@ def get_files():
 
     file_list = [os.path.basename(file) for file in csv_files]  # Liste des noms de fichiers
     return jsonify({"files": file_list})
+
+
+@app.route('/api/events', methods=['GET'])
+def get_events():
+    folder_path = "backend/app/data/Trace/"  # Récupérer les fichiers de données
+    csv_files = glob.glob(os.path.join(folder_path, "*.csv"))
+    
+    if not csv_files:
+        return jsonify({"error": "Aucun fichier de données trouvé"}), 404
+
+    events = []
+    
+    for file in csv_files:
+        df = pd.read_csv(file)
+        df = format_dates(df)
+        
+        for _, row in df.iterrows():
+            if row.get("Latence", 0) > 200:
+                events.append({
+                    "type": "Latence élevée",
+                    "description": f"Latence de {row['Latence']} ms détectée",
+                    "timestamp": row.get("Date_Performance", "Inconnu"),
+                    "file": os.path.basename(file)
+                })
+            
+            if row.get("Jitter", 0) > 100:
+                events.append({
+                    "type": "Jitter excessif",
+                    "description": f"Jitter de {row['Jitter']} ms détecté",
+                    "timestamp": row.get("Date_Performance", "Inconnu"),
+                    "file": os.path.basename(file)
+                })
+            
+            if row.get("Throuput", 10000) < 500:
+                events.append({
+                    "type": "Débit faible",
+                    "description": f"Débit de {row['Throuput']} kbps détecté",
+                    "timestamp": row.get("Date_Performance", "Inconnu"),
+                    "file": os.path.basename(file)
+                })
+    
+    return jsonify(events)
