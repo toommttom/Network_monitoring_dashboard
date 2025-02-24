@@ -8,9 +8,7 @@
       <div class="chart-card"><NetworkOutputChart /></div>
       <div class="chart-card"><EventView /></div>
     </div>
-    <!-- <div class="charts-container">
-      <EventView />
-    </div> -->
+    <div class="Latency"><NetworkLantencyChartHomePage /></div>
   </div>
 </template>
 
@@ -19,6 +17,7 @@ import NetworkPieChart from "../components/NetworkPieChart.vue";
 import NetworkInputChart from "../components/NetworkInputChart.vue";
 import NetworkOutputChart from "../components/NetworkOutputChart.vue";
 import EventView from "@/components/EventView.vue";
+import NetworkLantencyChartHomePage from "@/components/NetworkLantencyChartHomePage.vue";
 
 export default {
   name: "HomePage",
@@ -27,6 +26,7 @@ export default {
     NetworkInputChart,
     NetworkOutputChart,
     EventView,
+    NetworkLantencyChartHomePage,
   },
 };
 </script>
@@ -50,6 +50,7 @@ export default {
   width: 90%;
   max-width: 1200px;
   justify-content: center;
+  margin-bottom: 5px;
 }
 
 /* Assurer la même taille pour chaque graphique */
@@ -64,5 +65,19 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+.Lantency {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  height: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
 }
 </style>
