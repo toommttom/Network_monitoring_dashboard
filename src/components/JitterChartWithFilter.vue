@@ -2,17 +2,18 @@
   <div class="container">
     <h2>Analyse des Performances Réseau</h2>
 
-    <!-- Liste des fichiers avec Boutons Radio -->
+    <!-- Dropdown pour sélectionner le fichier -->
     <div class="file-selection">
-      <label v-for="file in availableFiles" :key="file" class="radio-label">
-        <input
-          type="radio"
-          v-model="selectedFile"
-          :value="file"
-          @change="fetchSelectedData"
-        />
-        {{ file }}
-      </label>
+      <label for="file-select">Sélectionner un fichier :</label>
+      <select
+        id="file-select"
+        v-model="selectedFile"
+        @change="fetchSelectedData"
+      >
+        <option v-for="file in availableFiles" :key="file" :value="file">
+          {{ file }}
+        </option>
+      </select>
     </div>
 
     <!-- Conteneur des graphiques et des infos réseau -->
@@ -35,7 +36,7 @@
         <p><strong>Ville :</strong> {{ selectedNetwork.Ville }}</p>
         <p><strong>Input :</strong> {{ selectedNetwork.Input }}</p>
         <p>
-          <strong>Technologie reseau :</strong>
+          <strong>Technologie réseau :</strong>
           {{ selectedNetwork.Technologie_Reseau }}
         </p>
         <p><strong>IP Source :</strong> {{ selectedNetwork.IP_source }}</p>
@@ -54,7 +55,7 @@ import Chart from "chart.js/auto";
 import axios from "axios";
 
 export default {
-  name: "JitterChartWithRadio",
+  name: "PerformanceAnalysis",
   setup() {
     const jitterChartCanvas = ref(null);
     const latencyChartCanvas = ref(null);
@@ -66,15 +67,21 @@ export default {
     const selectedFile = ref(null);
     const selectedNetwork = ref(null);
 
+    // Récupérer la liste des fichiers disponibles
     onMounted(async () => {
       try {
         const response = await axios.get("http://localhost:5000/api/files");
         availableFiles.value = response.data.files;
+        if (availableFiles.value.length > 0) {
+          selectedFile.value = availableFiles.value[0]; // Sélectionner automatiquement le premier fichier
+          fetchSelectedData();
+        }
       } catch (error) {
         console.error("Erreur lors de la récupération des fichiers :", error);
       }
     });
 
+    // Récupérer les données du fichier sélectionné
     const fetchSelectedData = async () => {
       if (!selectedFile.value) return;
 
@@ -91,6 +98,7 @@ export default {
       }
     };
 
+    // Mettre à jour les graphiques
     const updateCharts = (data) => {
       const labels = data.map((item) => item.Moment_du_ping);
       const jitter = data.map((item) => item.Jitter);
@@ -186,58 +194,50 @@ export default {
 
 <style scoped>
 .container {
-  .container {
-    max-height: 500px; /* Empêche la prise de toute la hauteur */
-    overflow-y: auto; /* Permet le scroll si nécessaire */
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+  width: 100%;
+  max-width: 1400px; /* Ajuste selon l'écran */
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-/* Conteneur des boutons radio */
+/* Centrage du dropdown */
 .file-selection {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  align-items: center;
   justify-content: center;
+  gap: 10px;
   margin-bottom: 15px;
 }
 
-.radio-label {
-  display: flex;
-  align-items: center;
-  background: white;
+.file-selection select {
   padding: 8px;
   border-radius: 5px;
+  border: 1px solid #ccc;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-input[type="radio"] {
-  margin-right: 8px;
-}
-
-/* Conteneur des graphiques */
+/* Grille structurée pour aligner les charts */
 .charts-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 3 colonnes égales */
+  gap: 20px; /* Espacement entre les charts */
   width: 100%;
-  flex-wrap: nowrap; /* Évite que les graphiques se mettent sur une nouvelle ligne */
+  max-width: 1200px;
+  justify-content: center;
+  align-items: stretch; /* Alignement vertical */
+  margin-bottom: 20px; /* Évite le scroll vertical */
 }
 
 /* Style uniforme des cartes contenant les graphiques */
 .chart-card {
   background: white;
-  padding: 20px;
-  border-radius: 8px;
+  padding: 15px;
+  border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 30%;
-  min-width: 300px;
-  height: 350px;
+  height: 350px; /* Hauteur fixe pour alignement */
+  width: 350px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -245,6 +245,7 @@ input[type="radio"] {
   overflow: hidden;
 }
 
+/* Pour s'assurer que les graphes sont bien contenus */
 canvas {
   width: 100% !important;
   height: 100% !important;
