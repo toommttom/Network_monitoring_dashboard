@@ -1,6 +1,14 @@
 <template>
   <div>
     <div class="filters">
+      <!-- Sélecteur entre Traces et Sessions -->
+      <label>Afficher :</label>
+      <select v-model="selectedDataset" @change="loadData">
+        <option value="traces">Traces</option>
+        <option value="sessions">Sessions</option>
+      </select>
+
+      <!-- Sélecteur de Technologie Réseau -->
       <label>Filtrer par technologie :</label>
       <select v-model="selectedTech" @change="updateMap">
         <option value="all">Toutes</option>
@@ -9,20 +17,8 @@
         </option>
       </select>
     </div>
+
     <div id="map"></div>
-    <div class="legend">
-      <small>
-        <div class="legend-item">
-          <span class="dot high"></span> Latence élevée
-        </div>
-        <div class="legend-item">
-          <span class="dot medium"></span> Latence moyenne
-        </div>
-        <div class="legend-item">
-          <span class="dot low"></span> Latence faible
-        </div>
-      </small>
-    </div>
   </div>
 </template>
 
@@ -37,6 +33,7 @@ export default {
     return {
       map: null,
       selectedTech: "all",
+      selectedDataset: "traces", // Valeur par défaut : Traces
       markers: [],
       technologies: [],
     };
@@ -54,18 +51,24 @@ export default {
       }).addTo(this.map);
     },
 
-    // Récupération des données depuis l'API
+    // Récupération des données depuis l'API selon le dataset sélectionné
     async loadData() {
       try {
-        const response = await axios.get("http://localhost:5000/api/data");
+        // 📌 CHOISIR L'API EN FONCTION DU DROPDOWN
+        const apiUrl =
+          this.selectedDataset === "traces"
+            ? "http://localhost:5000/api/data"
+            : "http://localhost:5000/api/sessions";
+
+        const response = await axios.get(apiUrl);
         const data = response.data;
 
-        // Récupération des technologies réseau disponibles
+        // 📌 Mise à jour de la liste des technologies réseau disponibles
         this.technologies = [
           ...new Set(data.map((item) => item.Technologie_Reseau)),
         ];
 
-        // Mise à jour des marqueurs sur la carte
+        // 📌 Met à jour les marqueurs avec les nouvelles données
         this.updateMarkers(data);
       } catch (error) {
         console.error("Erreur lors de la récupération des données :", error);
@@ -79,11 +82,11 @@ export default {
       return "green"; // Latence faible
     },
 
-    // Mettre à jour les marqueurs sur la carte en fonction des données
+    // Mise à jour des marqueurs sur la carte en fonction des données
     updateMarkers(data) {
       if (!this.map) return;
 
-      // Supprimer les marqueurs existants
+      // Supprimer les marqueurs existants AVANT d'ajouter les nouveaux
       this.markers.forEach((marker) => this.map.removeLayer(marker));
       this.markers = [];
 
@@ -97,7 +100,7 @@ export default {
         BORDEAUX: [44.8378, -0.5792],
       };
 
-      // Filtrer les données si une technologie spécifique est sélectionnée
+      // Filtrer les données selon la technologie sélectionnée
       const filteredData =
         this.selectedTech === "all"
           ? data
@@ -108,11 +111,19 @@ export default {
       // Ajout des marqueurs sur la carte
       filteredData.forEach((item) => {
         let coordinates = null;
-        if (item.Latitude !== null && item.Longitude !== null) {
+
+        // ⚡ Vérifier si l'élément possède Latitude/Longitude (TRACE)
+        if (
+          "Latitude" in item &&
+          "Longitude" in item &&
+          item.Latitude &&
+          item.Longitude
+        ) {
           coordinates = [parseFloat(item.Latitude), parseFloat(item.Longitude)];
         } else {
-          const city = item.Ville.toUpperCase();
-          coordinates = cityCoordinates[city] || null;
+          // ⚡ Sinon, prendre la Ville comme fallback (SESSION)
+          const city = item.Ville ? item.Ville.toUpperCase() : "PARIS";
+          coordinates = cityCoordinates[city] || cityCoordinates["PARIS"];
         }
 
         if (coordinates) {
@@ -131,23 +142,30 @@ export default {
           const marker = L.marker(coordinates, { icon: markerIcon }).addTo(
             this.map
           ).bindPopup(`
-              <strong>${item.Ville}</strong><br>
-              📶 Technologie : ${item.Technologie_Reseau}<br>
-              ⏳ Latence : ${item.Latence} ms<br>
-              🔄 Jitter : ${item.Jitter} ms<br>
-              🚀 Débit : ${item.Throuput} kbps
-            `);
+        <strong>${item.Ville}</strong><br>
+        📶 Technologie : ${item.Technologie_Reseau}<br>
+        ⏳ Latence : ${item.Latence.toFixed(2)} ms<br>
+        🔄 Jitter : ${item.Jitter.toFixed(2)} ms<br>
+        🚀 Débit : ${item.Throuput.toFixed(2)} kbps
+      `);
 
           this.markers.push(marker);
         }
+      });
+      this.$emit("markers-updated", {
+        count: this.markers.length,
+        avgLatency:
+          this.markers.reduce(
+            (sum, item) => sum + (item.options.latency || 0),
+            0
+          ) / Math.max(1, this.markers.length),
+        datasetType: this.selectedDataset,
       });
     },
 
     // Mise à jour de la carte après sélection d'une technologie
     updateMap() {
-      axios.get("http://localhost:5000/api/data").then((response) => {
-        this.updateMarkers(response.data);
-      });
+      this.loadData();
     },
   },
 };

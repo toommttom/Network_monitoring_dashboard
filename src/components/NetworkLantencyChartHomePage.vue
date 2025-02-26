@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <!-- <h2>Évolution de la Latence (Tous les Fichiers)</h2> -->
+    <h2>Évolution de la Latence (Tous les Fichiers)</h2>
 
     <div class="chart-container">
       <canvas ref="latencyChartCanvas"></canvas>

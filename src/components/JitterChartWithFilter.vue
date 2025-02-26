@@ -200,6 +200,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-left: 220px; /* Décalage pour compenser la largeur de la navbar */
 }
 
 /* Centrage du dropdown */

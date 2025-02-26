@@ -107,3 +107,74 @@ def get_events():
                 })
     
     return jsonify(events)
+
+@app.route('/api/sessions', methods=['GET'])
+def get_sessions():
+    folder_path = "backend/app/data/Session/"  # Dossier contenant les fichiers de sessions
+    csv_files = glob.glob(os.path.join(folder_path, "*.csv"))  # Liste de tous les fichiers CSV
+    
+    if not csv_files:
+        return jsonify({"error": "Aucun fichier de session trouvé"}), 404
+
+    all_data = []  # Liste pour stocker les sessions
+
+    for file in csv_files:
+        df = pd.read_csv(file)  # Lire le CSV
+        df["source_file"] = os.path.basename(file)  # Ajouter une colonne pour identifier la source
+        df = format_dates(df)  # Normaliser les dates
+        all_data.append(df)
+
+    final_df = pd.concat(all_data, ignore_index=True)  # Fusionner tous les fichiers en un seul DataFrame
+    final_df = final_df.replace({np.nan: None})
+
+    return jsonify(final_df.to_dict(orient='records'))  # Convertir en JSON et retourner
+
+import os
+import glob
+import pandas as pd
+import numpy as np
+from flask import jsonify
+from app import app
+
+# ================= API pour récupérer les statistiques globales =================
+@app.route('/api/stats', methods=['GET'])
+def get_stats():
+    folder_path = "backend/app/data/Trace/"  # Dossier contenant les fichiers CSV des traces
+    csv_files = glob.glob(os.path.join(folder_path, "*.csv"))  # Liste des fichiers CSV
+    
+    if not csv_files:
+        return jsonify({
+            "totalTests": 0,
+            "avgLatency": 0.0,
+            "maxLatency": 0
+        })
+
+    all_data = []  # Stocker toutes les données
+    
+    for file in csv_files:
+        df = pd.read_csv(file)
+        all_data.append(df)
+
+    # Fusionner tous les fichiers CSV en un seul DataFrame
+    final_df = pd.concat(all_data, ignore_index=True)
+    
+    # Vérifier que la colonne "Latence" existe
+    if "Latence" not in final_df.columns:
+        return jsonify({
+            "totalTests": len(final_df),
+            "avgLatency": 0.0,
+            "maxLatency": 0
+        })
+
+    # Calculer les statistiques
+    total_tests = len(final_df)
+    avg_latency = final_df["Latence"].mean() if not final_df["Latence"].isna().all() else 0.0
+    max_latency = final_df["Latence"].max() if not final_df["Latence"].isna().all() else 0
+
+    return jsonify({
+        "totalTests": total_tests,
+        "avgLatency": round(avg_latency, 2),
+        "maxLatency": max_latency
+    })
+
+
