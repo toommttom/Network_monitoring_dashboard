@@ -54,7 +54,7 @@ export default {
     // Récupération des données depuis l'API selon le dataset sélectionné
     async loadData() {
       try {
-        // 📌 CHOISIR L'API EN FONCTION DU DROPDOWN
+        //  CHOISIR L'API EN FONCTION DU DROPDOWN
         const apiUrl =
           this.selectedDataset === "traces"
             ? "http://localhost:5000/api/data"
@@ -63,12 +63,12 @@ export default {
         const response = await axios.get(apiUrl);
         const data = response.data;
 
-        // 📌 Mise à jour de la liste des technologies réseau disponibles
+        //  Mise à jour de la liste des technologies réseau disponibles
         this.technologies = [
           ...new Set(data.map((item) => item.Technologie_Reseau)),
         ];
 
-        // 📌 Met à jour les marqueurs avec les nouvelles données
+        //  Met à jour les marqueurs avec les nouvelles données
         this.updateMarkers(data);
       } catch (error) {
         console.error("Erreur lors de la récupération des données :", error);

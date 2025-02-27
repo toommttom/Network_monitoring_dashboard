@@ -11,9 +11,9 @@
         <li>
           <router-link to="/map" active-class="active">Map</router-link>
         </li>
-        <!-- <li>
+        <li>
           <router-link to="/alerte" active-class="active">Alerte</router-link>
-        </li> -->
+        </li>
       </ul>
     </nav>
   </div>
