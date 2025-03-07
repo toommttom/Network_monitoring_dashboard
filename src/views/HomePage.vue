@@ -95,111 +95,117 @@ export default {
 };
 </script>
 
+### **🎨 Mise à jour du CSS pour un affichage adaptatif** ```css
 <style scoped>
+/* 🌍 La page entière s'adapte à la taille de l'écran */
 .dashboard {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
-  background-color: #f4f6f8;
+  padding: 2vh;
+  background-color: white;
   min-height: 100vh;
 }
 
-/* Panneau d'information */
+/* 🏷️ Titre principal */
+h2 {
+  font-size: 3vh;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 2vh;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* 📊 Panneau d'information */
 .info-panel {
   display: flex;
   justify-content: center;
-  gap: 20px;
-  margin-bottom: 15px;
+  gap: 1.5vw;
+  margin-bottom: 2vh;
+  width: 90%;
+  flex-wrap: wrap;
 }
 
 .info-box {
   background: white;
-  padding: 15px;
-  border-radius: 8px;
+  padding: 1vh;
+  border-radius: 1vh;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   text-align: center;
-  min-width: 140px;
+  min-width: 12vw;
+  max-width: 12vw;
+  font-size: 2vh;
 }
 
+/* 📌 Texte dans les boîtes d'info */
 .info-box h3 {
   margin: 0;
-  font-size: 20px;
+  font-size: 2vh;
   font-weight: bold;
 }
 
 .info-box p {
-  margin: 5px 0 0;
-  font-size: 14px;
+  margin: 1vh 0 0;
+  font-size: 1.5vh;
   color: #666;
 }
 
-/* Grille des charts */
+/* 📈 Grille des charts */
 .charts-container {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 3 colonnes égales */
-  gap: 10px;
+  grid-template-columns: repeat(4, minmax(10vw, 1fr));
+  gap: 10vw;
   width: 90%;
   max-width: 1200px;
   justify-content: center;
-  margin-bottom: 20px;
+  margin-bottom: 2vh;
+  translate: -4vw;
 }
 
+/* 📊 Style des cartes contenant les graphiques */
 .chart-card {
   background: white;
-  padding: 15px;
-  border-radius: 10px;
+  padding: 4vh;
+  border-radius: 1vh;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  height: 350px;
-  width: 350px;
+  height: 30vh;
+  width: 15vw;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Section des événements */
-.event-container {
-  margin-top: 20px;
-  background: white;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 90%;
-  max-width: 800px;
+/* 🏗️ Ajustement au survol */
+.chart-card:hover {
+  transform: translateY(-1vh);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
-.event-container h3 {
-  margin-bottom: 10px;
+/* 📊 Taille des graphiques */
+canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 35vw;
+  max-height: 30vh;
 }
 
-.event-container ul {
-  list-style: none;
-  padding: 0;
-}
-
-.event-container li {
-  padding: 5px 0;
-  border-bottom: 1px solid #ddd;
-}
-
-.event-container li:last-child {
-  border-bottom: none;
-}
-
-/* Dropdown */
+/* 🔽 Dropdown */
 .dropdown-container {
-  margin-bottom: 15px;
+  margin-bottom: 2vh;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 1vw;
 }
 
 .dropdown-container select {
-  padding: 8px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+  padding: 1vh;
+  border-radius: 1vh;
+  border: 2px solid #ccc;
+  font-size: 2vh;
   cursor: pointer;
 }
 </style>

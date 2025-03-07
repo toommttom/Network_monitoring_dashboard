@@ -50,6 +50,10 @@ export default {
       }
     };
 
+    const getDynamicFontSize = () => {
+      return Math.max(5, window.innerWidth * 0.006); // Ajuste dynamiquement (min: 10px)
+    };
+
     // Mise à jour du graphique avec plusieurs fichiers
     const updateLatencyChart = (filesData) => {
       // Récupérer et fusionner tous les timestamps
@@ -88,6 +92,9 @@ export default {
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          font: {
+            size: getDynamicFontSize(), // Appliquer la taille dynamique ici
+          },
           plugins: {
             legend: {
               display: true,
@@ -95,6 +102,9 @@ export default {
               labels: {
                 boxWidth: 20, // Ajuster la taille des carrés de couleur
                 padding: 10,
+                font: {
+                  size: getDynamicFontSize(), // Appliquer la taille dynamique ici
+                },
               },
             },
           },
@@ -116,15 +126,6 @@ export default {
 </script>
 
 <style scoped>
-/* .container {
-  max-height: 500px;
-  overflow-y: auto;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-} */
-
 /* Style du graphique */
 .chart-container {
   background: white;
@@ -132,8 +133,8 @@ export default {
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 1500px;
-  height: 200px;
+  max-width: 84vw;
+  height: 20vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -141,7 +142,7 @@ export default {
 }
 
 .chart-container .chartjs-legend {
-  max-height: 200px; /* Définit une hauteur max */
+  max-height: 20vh; /* Définit une hauteur max */
   overflow-y: auto; /* Active le scroll vertical */
 }
 </style>

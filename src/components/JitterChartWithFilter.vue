@@ -2,16 +2,27 @@
   <div class="container">
     <h2>Analyse des Performances Réseau</h2>
 
-    <!-- Dropdown pour sélectionner le fichier -->
-    <div class="file-selection">
-      <label for="file-select">Sélectionner un fichier :</label>
-      <select
-        id="file-select"
-        v-model="selectedFile"
-        @change="fetchSelectedData"
-      >
-        <option v-for="file in availableFiles" :key="file" :value="file">
-          {{ file }}
+    <!-- Sélection des critères de filtrage -->
+    <div class="filter-selection">
+      <label>Filtrer par :</label>
+      <select v-model="selectedUser" @change="fetchFilteredData">
+        <option value="">Utilisateur</option>
+        <option v-for="user in uniqueUsers" :key="user" :value="user">
+          {{ user }}
+        </option>
+      </select>
+
+      <select v-model="selectedVille" @change="fetchFilteredData">
+        <option value="">Ville</option>
+        <option v-for="ville in uniqueVilles" :key="ville" :value="ville">
+          {{ ville }}
+        </option>
+      </select>
+
+      <select v-model="selectedServer" @change="fetchFilteredData">
+        <option value="">Serveur</option>
+        <option v-for="server in uniqueServers" :key="server" :value="server">
+          {{ server }}
         </option>
       </select>
     </div>
@@ -57,48 +68,76 @@ import axios from "axios";
 export default {
   name: "PerformanceAnalysis",
   setup() {
+    // Références pour les graphiques
     const jitterChartCanvas = ref(null);
     const latencyChartCanvas = ref(null);
     const throughputChartCanvas = ref(null);
     let jitterChartInstance = ref(null);
     let latencyChartInstance = ref(null);
     let throughputChartInstance = ref(null);
-    const availableFiles = ref([]);
-    const selectedFile = ref(null);
+
+    // Données et sélection des filtres
+    const dataRecords = ref([]); // Contiendra toutes les données reçues
+    const selectedUser = ref("");
+    const selectedVille = ref("");
+    const selectedServer = ref("");
     const selectedNetwork = ref(null);
 
-    // Récupérer la liste des fichiers disponibles
+    // Listes uniques pour les filtres
+    const uniqueUsers = ref([]);
+    const uniqueVilles = ref([]);
+    const uniqueServers = ref([]);
+
+    // Charger toutes les données au montage
     onMounted(async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/files");
-        availableFiles.value = response.data.files;
-        if (availableFiles.value.length > 0) {
-          selectedFile.value = availableFiles.value[0]; // Sélectionner automatiquement le premier fichier
-          fetchSelectedData();
-        }
+        const response = await axios.get("http://localhost:5000/api/data");
+        dataRecords.value = response.data;
+
+        // Extraire les valeurs uniques pour les filtres
+        uniqueUsers.value = [
+          ...new Set(dataRecords.value.map((item) => item.ID_user)),
+        ];
+        uniqueVilles.value = [
+          ...new Set(dataRecords.value.map((item) => item.Ville)),
+        ];
+        uniqueServers.value = [
+          ...new Set(dataRecords.value.map((item) => item.server_name)),
+        ];
+
+        fetchFilteredData();
       } catch (error) {
-        console.error("Erreur lors de la récupération des fichiers :", error);
+        console.error("Erreur lors de la récupération des données :", error);
       }
     });
 
-    // Récupérer les données du fichier sélectionné
-    const fetchSelectedData = async () => {
-      if (!selectedFile.value) return;
+    // Fonction pour filtrer les données en fonction des sélections
+    const fetchFilteredData = () => {
+      let filteredData = dataRecords.value;
 
-      try {
-        const response = await axios.get(
-          `http://localhost:5000/api/data/${selectedFile.value}`
+      if (selectedUser.value) {
+        filteredData = filteredData.filter(
+          (item) => item.ID_user === selectedUser.value
         );
-        updateCharts(response.data);
-        if (response.data.length > 0) {
-          selectedNetwork.value = response.data[0];
-        }
-      } catch (error) {
-        console.error("Erreur lors du chargement des données :", error);
+      }
+      if (selectedVille.value) {
+        filteredData = filteredData.filter(
+          (item) => item.Ville === selectedVille.value
+        );
+      }
+      if (selectedServer.value) {
+        filteredData = filteredData.filter(
+          (item) => item.server_name === selectedServer.value
+        );
+      }
+
+      if (filteredData.length > 0) {
+        selectedNetwork.value = filteredData[0]; // Prend le premier élément filtré
+        updateCharts(filteredData);
       }
     };
 
-    // Mettre à jour les graphiques
+    // Mise à jour des graphiques
     const updateCharts = (data) => {
       const labels = data.map((item) => item.Moment_du_ping);
       const jitter = data.map((item) => item.Jitter);
@@ -130,10 +169,7 @@ export default {
             },
           ],
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-        },
+        options: { responsive: true, maintainAspectRatio: false },
       });
 
       latencyChartInstance.value = new Chart(latencyChartCanvas.value, {
@@ -151,10 +187,7 @@ export default {
             },
           ],
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-        },
+        options: { responsive: true, maintainAspectRatio: false },
       });
 
       throughputChartInstance.value = new Chart(throughputChartCanvas.value, {
@@ -172,10 +205,7 @@ export default {
             },
           ],
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-        },
+        options: { responsive: true, maintainAspectRatio: false },
       });
     };
 
@@ -183,74 +213,140 @@ export default {
       jitterChartCanvas,
       latencyChartCanvas,
       throughputChartCanvas,
-      availableFiles,
-      selectedFile,
-      fetchSelectedData,
+      selectedUser,
+      selectedVille,
+      selectedServer,
+      uniqueUsers,
+      uniqueVilles,
+      uniqueServers,
       selectedNetwork,
+      fetchFilteredData,
     };
   },
 };
 </script>
 
 <style scoped>
+/* 🌟 Conteneur principal */
 .container {
   width: 100%;
-  max-width: 1400px; /* Ajuste selon l'écran */
+  max-width: 1400px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-left: 220px; /* Décalage pour compenser la largeur de la navbar */
+  padding: 30px;
+  background-color: #f4f6f8;
 }
 
-/* Centrage du dropdown */
-.file-selection {
+/* 🏷️ Titre principal */
+h2 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* 🎚️ Conteneur des filtres */
+.filter-selection {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  margin-bottom: 15px;
+  gap: 15px;
+  background: white;
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
 }
 
-.file-selection select {
-  padding: 8px;
+/* 🏷️ Label des filtres */
+.filter-selection label {
+  font-size: 16px;
+  font-weight: bold;
+  color: #555;
+}
+
+/* 📌 Dropdowns */
+.filter-selection select {
+  padding: 10px;
+  font-size: 14px;
+  border: 2px solid #ddd;
   border-radius: 5px;
-  border: 1px solid #ccc;
+  background-color: #fff;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-/* Grille structurée pour aligner les charts */
+.filter-selection select:hover {
+  border-color: #007bff;
+}
+
+.filter-selection select:focus {
+  outline: none;
+  border-color: #0056b3;
+}
+
+/* 📊 Grille des graphiques */
 .charts-container {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 3 colonnes égales */
-  gap: 20px; /* Espacement entre les charts */
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
   width: 100%;
   max-width: 1200px;
   justify-content: center;
-  align-items: stretch; /* Alignement vertical */
-  margin-bottom: 20px; /* Évite le scroll vertical */
+  align-items: stretch;
+  margin-bottom: 20px;
 }
 
-/* Style uniforme des cartes contenant les graphiques */
+/* 📈 Style des cartes */
 .chart-card {
   background: white;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  height: 350px; /* Hauteur fixe pour alignement */
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+  height: 370px;
   width: 350px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Pour s'assurer que les graphes sont bien contenus */
+/* Effet au survol */
+.chart-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* 🎨 Titres des graphiques */
+.chart-card h3 {
+  font-size: 18px;
+  font-weight: bold;
+  color: #222;
+  margin-bottom: 10px;
+}
+
+/* 📊 Taille des graphiques */
 canvas {
   width: 100% !important;
   height: 100% !important;
   max-width: 280px;
   max-height: 280px;
+}
+
+/* ℹ️ Informations Réseau */
+.chart-card p {
+  font-size: 14px;
+  color: #444;
+  margin: 4px 0;
+}
+
+.chart-card p strong {
+  color: #222;
 }
 </style>

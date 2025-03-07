@@ -6,7 +6,7 @@
           <router-link to="/" active-class="active">Home</router-link>
         </li>
         <li>
-          <router-link to="/view" active-class="active">view</router-link>
+          <router-link to="/view" active-class="active">View</router-link>
         </li>
         <li>
           <router-link to="/map" active-class="active">Map</router-link>
@@ -27,19 +27,19 @@ export default {
 
 <style scoped>
 #navbar {
-  width: 250px; /* Ou autre largeur */
+  width: 10vw; /* Largeur ajustée à la hauteur de l'écran */
   background-color: #2c3e50;
-  height: 100vh; /* Prend toute la hauteur de l'écran */
+  height: 100vh; /* Pleine hauteur */
   display: flex;
   flex-direction: column;
-  padding-top: 20px;
+  padding-top: 2vh; /* Ajustement dynamique */
 }
 
 .vertical-navbar {
-  width: 200px;
+  width: 10vw;
   background-color: #2c3e50;
   color: white;
-  padding: 20px;
+  padding: 2vh;
 }
 
 .vertical-navbar ul {
@@ -49,24 +49,25 @@ export default {
 }
 
 .vertical-navbar li {
-  margin: 10px 0;
+  margin: 2vh 0; /* Espacement dynamique */
 }
 
 .vertical-navbar a {
   color: white;
   text-decoration: none;
-  font-size: 18px;
+  font-size: 2.5vh; /* Taille de police relative à l'écran */
+  transition: font-size 0.2s ease-in-out;
 }
 
 .vertical-navbar a.active {
   font-weight: bold;
-  border-left: 4px solid #3498db;
-  padding-left: 10px;
+  border-left: 0.5vh solid #3498db;
+  padding-left: 1vh;
 }
 
 .content {
   flex: 1;
-  padding: 20px;
+  padding: 2vh;
   background-color: #ecf0f1;
 }
 </style>

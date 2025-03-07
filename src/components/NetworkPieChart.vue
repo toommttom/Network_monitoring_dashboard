@@ -1,12 +1,11 @@
 <template>
   <div class="chart-container">
-    <h2>Technologies Réseau</h2>
     <canvas ref="barChartCanvas"></canvas>
   </div>
 </template>
 
 <script>
-import { ref, onMounted } from "vue";
+import { onMounted, ref, onBeforeUnmount } from "vue";
 import Chart from "chart.js/auto";
 import axios from "axios";
 
@@ -16,7 +15,65 @@ export default {
     const barChartCanvas = ref(null);
     let chartInstance = null;
 
-    onMounted(async () => {
+    // Fonction pour obtenir une taille de police dynamique
+    const getDynamicFontSize = () => {
+      return Math.max(12, window.innerWidth * 0.008); // Minimum 12px
+    };
+
+    // Fonction pour créer le graphique avec les tailles dynamiques
+    const createChart = (canvas, labels, values) => {
+      if (!canvas) return;
+
+      return new Chart(canvas, {
+        type: "bar",
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: "Technologies Réseau",
+              data: values,
+              backgroundColor: "#36A2EB",
+              borderColor: "#1E88E5",
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            title: {
+              display: true,
+              text: "Répartition des Technologies Réseau",
+              font: {
+                size: getDynamicFontSize(),
+              },
+            },
+          },
+          scales: {
+            x: {
+              ticks: {
+                font: {
+                  size: getDynamicFontSize(),
+                },
+              },
+            },
+            y: {
+              beginAtZero: true,
+              ticks: {
+                font: {
+                  size: getDynamicFontSize(),
+                },
+              },
+            },
+          },
+        },
+      });
+    };
+
+    // Fonction pour charger les données et initialiser le graphique
+    const loadChartData = async () => {
       try {
         const response = await axios.get("http://127.0.0.1:5000/api/data");
         const data = response.data;
@@ -34,39 +91,34 @@ export default {
           chartInstance.destroy();
         }
 
-        chartInstance = new Chart(barChartCanvas.value, {
-          type: "bar",
-          data: {
-            labels: labels,
-            datasets: [
-              {
-                label: "Technologies Réseau",
-                data: values,
-                backgroundColor: "#36A2EB",
-                borderColor: "#1E88E5",
-                borderWidth: 1,
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            plugins: {
-              legend: { display: false },
-              title: {
-                display: true,
-                text: "Répartition des Technologies Réseau",
-              },
-            },
-            scales: {
-              y: {
-                beginAtZero: true,
-              },
-            },
-          },
-        });
+        chartInstance = createChart(barChartCanvas.value, labels, values);
       } catch (error) {
         console.error("Erreur lors de la récupération des données:", error);
       }
+    };
+
+    // Fonction pour mettre à jour la taille de la police au redimensionnement
+    const updateChartSize = () => {
+      if (chartInstance) {
+        chartInstance.options.plugins.title.font.size = getDynamicFontSize();
+        chartInstance.options.scales.x.ticks.font.size = getDynamicFontSize();
+        chartInstance.options.scales.y.ticks.font.size = getDynamicFontSize();
+        chartInstance.update();
+      }
+    };
+
+    // Montage du composant
+    onMounted(() => {
+      loadChartData();
+      window.addEventListener("resize", updateChartSize);
+    });
+
+    // Nettoyage avant démontage
+    onBeforeUnmount(() => {
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
+      window.removeEventListener("resize", updateChartSize);
     });
 
     return { barChartCanvas };
@@ -79,18 +131,13 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
-  background-color: #f4f6f8;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 1200px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  width: 100%;
+  height: 60vh; /* Ajuste dynamiquement en fonction de l'écran */
 }
 
 canvas {
   width: 100% !important;
   height: 100% !important;
-  max-width: 600px;
-  max-height: 400px;
 }
 </style>
