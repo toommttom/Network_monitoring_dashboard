@@ -30,11 +30,11 @@ export default {
     // Fonction pour récupérer tous les fichiers et leurs données
     const fetchAllData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/files");
+        const response = await axios.get("http://172.20.10.3:5000/api/files");
         const files = response.data.files;
 
         const allDataPromises = files.map((file) =>
-          axios.get(`http://localhost:5000/api/data/${file}`).then((res) => ({
+          axios.get(`http://172.20.10.3:5000/api/data/${file}`).then((res) => ({
             fileName: file,
             data: res.data,
           }))

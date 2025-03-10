@@ -57,8 +57,8 @@ export default {
         //  CHOISIR L'API EN FONCTION DU DROPDOWN
         const apiUrl =
           this.selectedDataset === "traces"
-            ? "http://localhost:5000/api/data"
-            : "http://localhost:5000/api/sessions";
+            ? "http://172.20.10.3:5000/api/data"
+            : "http://172.20.10.3:5000/api/sessions";
 
         const response = await axios.get(apiUrl);
         const data = response.data;

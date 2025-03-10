@@ -91,7 +91,7 @@ export default {
     // Charger toutes les données au montage
     onMounted(async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/data");
+        const response = await axios.get("http://172.20.10.3:5000/api/data");
         dataRecords.value = response.data;
 
         // Extraire les valeurs uniques pour les filtres
