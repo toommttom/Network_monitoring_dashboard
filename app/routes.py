@@ -46,7 +46,7 @@ def get_data():
 
 @app.route('/api/data/<filename>', methods=['GET'])
 def get_specific_data(filename):
-    file_path = os.path.join(folder_path, filename)
+    file_path = glob.glob(os.path.join(folder_path, filename))
 
     if not os.path.exists(file_path):
         return jsonify({"error": f"Fichier {filename} introuvable"}), 404
