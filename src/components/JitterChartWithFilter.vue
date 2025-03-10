@@ -230,21 +230,18 @@ export default {
 /* 🌟 Conteneur principal */
 .container {
   width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 30px;
-  background-color: #f4f6f8;
 }
 
 /* 🏷️ Titre principal */
 h2 {
-  font-size: 24px;
+  font-size: 3vh;
   font-weight: bold;
   color: #333;
-  margin-bottom: 20px;
+  margin-bottom: 2vh;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
@@ -254,26 +251,26 @@ h2 {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 15px;
+  gap: 1vw;
   background: white;
-  padding: 15px 20px;
+  padding: 1vh 1vw;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
+  margin-bottom: 2vh;
 }
 
 /* 🏷️ Label des filtres */
 .filter-selection label {
-  font-size: 16px;
+  font-size: 2vh;
   font-weight: bold;
   color: #555;
 }
 
 /* 📌 Dropdowns */
 .filter-selection select {
-  padding: 10px;
-  font-size: 14px;
-  border: 2px solid #ddd;
+  padding: 1vh;
+  font-size: 2vh;
+  border: 0.2vh solid #ddd;
   border-radius: 5px;
   background-color: #fff;
   cursor: pointer;
@@ -289,31 +286,30 @@ h2 {
   border-color: #0056b3;
 }
 
-/* 📊 Grille des graphiques */
+/* 📈 Grille des charts */
 .charts-container {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-  width: 100%;
+  grid-template-columns: repeat(4, minmax(10vw, 1fr));
+  gap: 10vw;
+  width: 90%;
   max-width: 1200px;
   justify-content: center;
-  align-items: stretch;
-  margin-bottom: 20px;
+  margin-bottom: 2vh;
+  translate: -4vw;
 }
 
-/* 📈 Style des cartes */
+/* 📊 Style des cartes contenant les graphiques */
 .chart-card {
   background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
-  height: 370px;
-  width: 350px;
+  padding: 4vh;
+  border-radius: 1vh;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  height: 30vh;
+  width: 15vw;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -325,23 +321,21 @@ h2 {
 
 /* 🎨 Titres des graphiques */
 .chart-card h3 {
-  font-size: 18px;
+  font-size: 2.5vh;
   font-weight: bold;
   color: #222;
-  margin-bottom: 10px;
+  margin-bottom: 1vh;
 }
 
 /* 📊 Taille des graphiques */
 canvas {
   width: 100% !important;
   height: 100% !important;
-  max-width: 280px;
-  max-height: 280px;
 }
 
 /* ℹ️ Informations Réseau */
 .chart-card p {
-  font-size: 14px;
+  font-size: 2vh;
   color: #444;
   margin: 4px 0;
 }

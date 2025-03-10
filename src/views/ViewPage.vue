@@ -18,13 +18,4 @@ export default {
 };
 </script>
 
-<style>
-.charts {
-  margin: 20px auto; /* Centrage automatique horizontal */
-  width: 80%;
-  max-width: 1200px;
-  display: flex; /* Active Flexbox */
-  justify-content: center; /* Centre horizontalement */
-  align-items: center; /* Centre verticalement (si nécessaire) */
-}
-</style>
+<style></style>

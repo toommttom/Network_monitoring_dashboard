@@ -174,27 +174,31 @@ export default {
 <style scoped>
 #map {
   width: 100%;
-  height: 500px;
+  height: 80vh;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .filters {
-  margin-bottom: 10px;
+  margin-bottom: 1vh;
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
+.filters label {
+  font-size: 1vi;
+}
+
 .filters select {
-  padding: 5px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+  padding: 1vh;
+  border-radius: 0.5vh;
+  border: 0.2vh solid #ccc;
 }
 
 .legend {
   margin-top: 10px;
-  font-size: 0.85em;
+  font-size: 1vi;
 }
 
 .legend-item {
@@ -204,8 +208,8 @@ export default {
 }
 
 .dot {
-  width: 12px;
-  height: 12px;
+  width: 0.5vh;
+  height: 0.5vw;
   border-radius: 50%;
   display: inline-block;
 }

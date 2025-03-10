@@ -67,49 +67,56 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
-  background-color: #f8f9fa;
 }
 
 /* Style du titre */
 h2 {
-  font-size: 24px;
-  margin-bottom: 10px;
+  font-size: 3vh;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 2vh;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-/* Panneau d'information */
+/* 📊 Panneau d'information */
 .info-panel {
   display: flex;
   justify-content: center;
-  gap: 20px;
-  margin-bottom: 15px;
+  gap: 1.5vw;
+  margin-bottom: 2vh;
+  width: 90%;
+  flex-wrap: wrap;
 }
 
 .info-box {
   background: white;
-  padding: 15px;
-  border-radius: 8px;
+  padding: 1vh;
+  border-radius: 1vh;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   text-align: center;
-  min-width: 120px;
+  min-width: 12vw;
+  max-width: 12vw;
+  font-size: 2vh;
 }
 
+/* 📌 Texte dans les boîtes d'info */
 .info-box h3 {
   margin: 0;
-  font-size: 20px;
+  font-size: 2vh;
   font-weight: bold;
 }
 
 .info-box p {
-  margin: 5px 0 0;
-  font-size: 14px;
+  margin: 1vh 0 0;
+  font-size: 1.5vh;
   color: #666;
 }
 
 /* Conteneur de la carte */
 .map-container {
   width: 80%;
-  max-width: 1200px;
+  height: 80vh;
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
