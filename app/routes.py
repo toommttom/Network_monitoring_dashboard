@@ -57,7 +57,6 @@ def get_specific_data(filename):
 
 @app.route('/api/files', methods=['GET'])
 def get_files():
-    folder_path = "backend/app/data/Trace/"
     csv_files = glob.glob(os.path.join(folder_path, "*.csv"))
     
     if not csv_files:
