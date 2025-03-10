@@ -6,6 +6,8 @@ from app import app
 import numpy as np
 
 
+folder_path = "/home/tom/backend/app/data/Trace/"
+folder_path_session = "/home/tom/backend/app/data/Session/"
 #================= Fonction pour normaliser les dates
 def format_dates(df):
     column_rename = {"Moment du ping" : "Moment_du_ping"}
@@ -23,7 +25,6 @@ def format_dates(df):
 
 @app.route('/api/data', methods=['GET'])
 def get_data():
-    folder_path = "backend/app/data/Trace/"  # Dossier contenant les fichiers CSV
     csv_files = glob.glob(os.path.join(folder_path, "*.csv"))  # Liste de tous les fichiers CSV
     
     if not csv_files:
@@ -45,7 +46,6 @@ def get_data():
 
 @app.route('/api/data/<filename>', methods=['GET'])
 def get_specific_data(filename):
-    folder_path = "backend/app/data/Trace/"
     file_path = os.path.join(folder_path, filename)
 
     if not os.path.exists(file_path):
@@ -69,7 +69,6 @@ def get_files():
 
 @app.route('/api/events', methods=['GET'])
 def get_events():
-    folder_path = "backend/app/data/Trace/"  # Récupérer les fichiers de données
     csv_files = glob.glob(os.path.join(folder_path, "*.csv"))
     
     if not csv_files:
@@ -110,8 +109,7 @@ def get_events():
 
 @app.route('/api/sessions', methods=['GET'])
 def get_sessions():
-    folder_path = "backend/app/data/Session/"  # Dossier contenant les fichiers de sessions
-    csv_files = glob.glob(os.path.join(folder_path, "*.csv"))  # Liste de tous les fichiers CSV
+    csv_files = glob.glob(os.path.join(folder_path_session, "*.csv"))  # Liste de tous les fichiers CSV
     
     if not csv_files:
         return jsonify({"error": "Aucun fichier de session trouvé"}), 404
@@ -129,17 +127,9 @@ def get_sessions():
 
     return jsonify(final_df.to_dict(orient='records'))  # Convertir en JSON et retourner
 
-import os
-import glob
-import pandas as pd
-import numpy as np
-from flask import jsonify
-from app import app
-
 # ================= API pour récupérer les statistiques globales =================
 @app.route('/api/stats', methods=['GET'])
 def get_stats():
-    folder_path = "backend/app/data/Trace/"  # Dossier contenant les fichiers CSV des traces
     csv_files = glob.glob(os.path.join(folder_path, "*.csv"))  # Liste des fichiers CSV
     
     if not csv_files:
