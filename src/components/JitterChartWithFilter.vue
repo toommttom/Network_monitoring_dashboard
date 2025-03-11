@@ -38,24 +38,43 @@
         <canvas ref="latencyChartCanvas"></canvas>
       </div>
       <div class="chart-card">
-        <h3>Throughput</h3>
-        <canvas ref="throughputChartCanvas"></canvas>
+        <h3>Throuput</h3>
+        <canvas ref="throuputChartCanvas"></canvas>
       </div>
-      <div class="chart-card" v-if="selectedNetwork">
-        <h3>Informations Réseau</h3>
-        <p><strong>Utilisateur :</strong> {{ selectedNetwork.ID_user }}</p>
-        <p><strong>Ville :</strong> {{ selectedNetwork.Ville }}</p>
-        <p><strong>Input :</strong> {{ selectedNetwork.Input }}</p>
-        <p>
-          <strong>Technologie réseau :</strong>
-          {{ selectedNetwork.Technologie_Reseau }}
-        </p>
-        <p><strong>IP Source :</strong> {{ selectedNetwork.IP_source }}</p>
-        <p>
-          <strong>IP Destination :</strong> {{ selectedNetwork.IP_destination }}
-        </p>
-        <p><strong>Serveur :</strong> {{ selectedNetwork.server_name }}</p>
-      </div>
+    </div>
+    <!-- Tableau des statistiques -->
+    <div class="stats-table" v-if="filteredData.length">
+      <h3>Statistiques</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Métrique</th>
+            <th>Min</th>
+            <th>Moyenne</th>
+            <th>Max</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Jitter (ms)</td>
+            <td>{{ minJitter }}</td>
+            <td>{{ avgJitter }}</td>
+            <td>{{ maxJitter }}</td>
+          </tr>
+          <tr>
+            <td>Latence (ms)</td>
+            <td>{{ minLatency }}</td>
+            <td>{{ avgLatency }}</td>
+            <td>{{ maxLatency }}</td>
+          </tr>
+          <tr>
+            <td>Throuput (kbps)</td>
+            <td>{{ minThrouput }}</td>
+            <td>{{ avgThrouput }}</td>
+            <td>{{ maxThrouput }}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
@@ -68,33 +87,39 @@ import axios from "axios";
 export default {
   name: "PerformanceAnalysis",
   setup() {
-    // Références pour les graphiques
     const jitterChartCanvas = ref(null);
     const latencyChartCanvas = ref(null);
-    const throughputChartCanvas = ref(null);
+    const throuputChartCanvas = ref(null);
     let jitterChartInstance = ref(null);
     let latencyChartInstance = ref(null);
-    let throughputChartInstance = ref(null);
+    let throuputChartInstance = ref(null);
 
-    // Données et sélection des filtres
-    const dataRecords = ref([]); // Contiendra toutes les données reçues
+    const dataRecords = ref([]);
+    const filteredData = ref([]);
     const selectedUser = ref("");
     const selectedVille = ref("");
     const selectedServer = ref("");
     const selectedNetwork = ref(null);
 
-    // Listes uniques pour les filtres
     const uniqueUsers = ref([]);
     const uniqueVilles = ref([]);
     const uniqueServers = ref([]);
 
-    // Charger toutes les données au montage
+    const minJitter = ref(0);
+    const avgJitter = ref(0);
+    const maxJitter = ref(0);
+    const minLatency = ref(0);
+    const avgLatency = ref(0);
+    const maxLatency = ref(0);
+    const minThrouput = ref(0);
+    const avgThrouput = ref(0);
+    const maxThrouput = ref(0);
+
     onMounted(async () => {
       try {
         const response = await axios.get("http://172.20.10.3:5000/api/data");
         dataRecords.value = response.data;
 
-        // Extraire les valeurs uniques pour les filtres
         uniqueUsers.value = [
           ...new Set(dataRecords.value.map((item) => item.ID_user)),
         ];
@@ -111,38 +136,55 @@ export default {
       }
     });
 
-    // Fonction pour filtrer les données en fonction des sélections
     const fetchFilteredData = () => {
-      let filteredData = dataRecords.value;
+      filteredData.value = dataRecords.value.filter(
+        (item) =>
+          (!selectedUser.value || item.ID_user === selectedUser.value) &&
+          (!selectedVille.value || item.Ville === selectedVille.value) &&
+          (!selectedServer.value || item.server_name === selectedServer.value)
+      );
 
-      if (selectedUser.value) {
-        filteredData = filteredData.filter(
-          (item) => item.ID_user === selectedUser.value
-        );
-      }
-      if (selectedVille.value) {
-        filteredData = filteredData.filter(
-          (item) => item.Ville === selectedVille.value
-        );
-      }
-      if (selectedServer.value) {
-        filteredData = filteredData.filter(
-          (item) => item.server_name === selectedServer.value
-        );
-      }
-
-      if (filteredData.length > 0) {
-        selectedNetwork.value = filteredData[0]; // Prend le premier élément filtré
-        updateCharts(filteredData);
+      if (filteredData.value.length > 0) {
+        selectedNetwork.value = filteredData.value[0];
+        updateStatistics(filteredData.value);
+        updateCharts(filteredData.value);
       }
     };
 
-    // Mise à jour des graphiques
+    const updateStatistics = (data) => {
+      const values = (key) => data.map((item) => item[key]);
+      const calculate = (arr) =>
+        arr.length
+          ? {
+              min: Math.min(...arr),
+              avg: (
+                arr.reduce((sum, val) => sum + val, 0) / arr.length
+              ).toFixed(2),
+              max: Math.max(...arr),
+            }
+          : { min: 0, avg: 0, max: 0 };
+
+      const jitterStats = calculate(values("Jitter"));
+      minJitter.value = jitterStats.min;
+      avgJitter.value = jitterStats.avg;
+      maxJitter.value = jitterStats.max;
+
+      const latencyStats = calculate(values("Latence"));
+      minLatency.value = latencyStats.min;
+      avgLatency.value = latencyStats.avg;
+      maxLatency.value = latencyStats.max;
+
+      const throuputStats = calculate(values("Throuput"));
+      minThrouput.value = throuputStats.min;
+      avgThrouput.value = throuputStats.avg;
+      maxThrouput.value = throuputStats.max;
+    };
+
     const updateCharts = (data) => {
       const labels = data.map((item) => item.Moment_du_ping);
       const jitter = data.map((item) => item.Jitter);
       const latency = data.map((item) => item.Latence);
-      const throughput = data.map((item) => item.Throuput);
+      const throuput = data.map((item) => item.Throuput);
 
       const destroyChart = (chartInstance) => {
         if (chartInstance.value) {
@@ -152,7 +194,7 @@ export default {
 
       destroyChart(jitterChartInstance);
       destroyChart(latencyChartInstance);
-      destroyChart(throughputChartInstance);
+      destroyChart(throuputChartInstance);
 
       jitterChartInstance.value = new Chart(jitterChartCanvas.value, {
         type: "line",
@@ -190,14 +232,14 @@ export default {
         options: { responsive: true, maintainAspectRatio: false },
       });
 
-      throughputChartInstance.value = new Chart(throughputChartCanvas.value, {
+      throuputChartInstance.value = new Chart(throuputChartCanvas.value, {
         type: "line",
         data: {
           labels,
           datasets: [
             {
-              label: "Throughput (kbps)",
-              data: throughput,
+              label: "Throuput (kbps)",
+              data: throuput,
               borderColor: "rgba(54, 162, 235, 1)",
               backgroundColor: "rgba(54, 162, 235, 0.2)",
               fill: true,
@@ -212,14 +254,23 @@ export default {
     return {
       jitterChartCanvas,
       latencyChartCanvas,
-      throughputChartCanvas,
+      throuputChartCanvas,
       selectedUser,
       selectedVille,
       selectedServer,
       uniqueUsers,
       uniqueVilles,
       uniqueServers,
-      selectedNetwork,
+      filteredData,
+      minJitter,
+      avgJitter,
+      maxJitter,
+      minLatency,
+      avgLatency,
+      maxLatency,
+      minThrouput,
+      avgThrouput,
+      maxThrouput,
       fetchFilteredData,
     };
   },
@@ -289,7 +340,7 @@ h2 {
 /* 📈 Grille des charts */
 .charts-container {
   display: grid;
-  grid-template-columns: repeat(4, minmax(10vw, 1fr));
+  grid-template-columns: repeat(3, minmax(10vw, 1fr));
   gap: 10vw;
   width: 90%;
   max-width: 1200px;
