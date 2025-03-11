@@ -394,4 +394,43 @@ canvas {
 .chart-card p strong {
   color: #222;
 }
+
+.stats-table {
+  width: 80%;
+  margin: 2rem auto;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.stats-table h3 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.stats-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.stats-table th,
+.stats-table td {
+  padding: 1rem;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.stats-table th {
+  background: #007bff;
+  color: white;
+  font-size: 1rem;
+}
+
+.stats-table tr:nth-child(even) {
+  background: #f9f9f9;
+}
 </style>
