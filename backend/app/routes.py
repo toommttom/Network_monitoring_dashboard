@@ -94,34 +94,52 @@ async def get_events():
         raise HTTPException(status_code=404, detail="Aucun fichier de données trouvé")
 
     events = []
+
     for file in csv_files:
         df = pd.read_csv(file, encoding="utf-8", on_bad_lines="skip")
         df = format_dates(df)
 
-        for _, row in df.iterrows():
-            if row.get("Latence", 0) > 200:
-                events.append({
-                    "type": "Latence élevée",
-                    "description": f"Latence de {row['Latence']} ms détectée",
-                    "timestamp": row.get("Date_Performance", "Inconnu"),
-                    "file": os.path.basename(file)
-                })
-            if row.get("Jitter", 0) > 100:
-                events.append({
-                    "type": "Jitter excessif",
-                    "description": f"Jitter de {row['Jitter']} ms détecté",
-                    "timestamp": row.get("Date_Performance", "Inconnu"),
-                    "file": os.path.basename(file)
-                })
-            if row.get("Throuput", 10000) < 500:
-                events.append({
-                    "type": "Débit faible",
-                    "description": f"Débit de {row['Throuput']} kbps détecté",
-                    "timestamp": row.get("Date_Performance", "Inconnu"),
-                    "file": os.path.basename(file)
-                })
+        # 🔥 Remplacement des valeurs NaN et infinies
+        df.replace([np.nan, np.inf, -np.inf], None, inplace=True)
+        df.dropna(subset=["Latence", "Jitter", "Throuput"], inplace=True)
 
-    return events
+        for _, row in df.iterrows():
+            try:
+                # Vérifier que les valeurs numériques sont bien des nombres
+                latence = float(row.get("Latence", 0))
+                jitter = float(row.get("Jitter", 0))
+                throuput = float(row.get("Throuput", 0))
+
+                if latence > 200:
+                    events.append({
+                        "type": "Latence élevée",
+                        "description": f"Latence de {latence} ms détectée",
+                        "timestamp": row.get("Date_Performance", "Inconnu"),
+                        "file": os.path.basename(file)
+                    })
+
+                if jitter > 100:
+                    events.append({
+                        "type": "Jitter excessif",
+                        "description": f"Jitter de {jitter} ms détecté",
+                        "timestamp": row.get("Date_Performance", "Inconnu"),
+                        "file": os.path.basename(file)
+                    })
+
+                if throuput < 500:
+                    events.append({
+                        "type": "Débit faible",
+                        "description": f"Débit de {throuput} kbps détecté",
+                        "timestamp": row.get("Date_Performance", "Inconnu"),
+                        "file": os.path.basename(file)
+                    })
+
+            except ValueError:
+                print(f"⚠️ Erreur de conversion dans {file} à la ligne {row}")
+                continue  # Ignore la ligne problématique
+
+    return JSONResponse(content=events)
+
 
 # 📌 Route pour récupérer les statistiques globales
 @router.get("/api/stats")
