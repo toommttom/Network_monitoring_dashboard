@@ -1,8 +1,8 @@
 <template>
   <div id="app">
-    <header>
-      <!-- <h1>Network Monitoring Dashboard</h1> -->
-    </header>
+    <!-- <header>
+    <h1>Network Monitoring Dashboard</h1>
+    </header> -->
     <div class="main-layout">
       <NavBar />
       <router-view class="content" />

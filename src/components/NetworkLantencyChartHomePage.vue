@@ -95,7 +95,7 @@ export default {
         backgroundColor: colors[index % colors.length].replace("1)", "0.2)"),
         fill: true,
         tension: 0.4,
-        spanGaps: false,
+        spanGaps: true,
       }));
 
       // Détruire l'ancien graphique s'il existe
@@ -155,7 +155,7 @@ export default {
 
 .chart-container {
   background: white;
-  padding: 20px;
+  padding: 10px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   width: 100%;

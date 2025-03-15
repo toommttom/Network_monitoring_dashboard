@@ -45,7 +45,7 @@ export default {
   methods: {
     // Initialisation de la carte Leaflet
     initMap() {
-      this.map = L.map("map").setView([46.603354, 1.888334], 6);
+      this.map = L.map("map").setView([23, 1.888334], 3);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "&copy; OpenStreetMap contributors",
       }).addTo(this.map);
@@ -134,7 +134,7 @@ export default {
         if (coordinates) {
           // Déterminer la couleur et la taille du point
           const latencyColor = this.getLatencyColor(item.Latence);
-          const size = Math.min(20, Math.max(8, item.Latence / 10)); // Taille entre 8px et 20px
+          const size = Math.min(15, Math.max(8, item.Latence / 10)); // Taille entre 8px et 20px
 
           // Définition de l'icône personnalisée avec couleur et taille dynamique
           const markerIcon = L.divIcon({
