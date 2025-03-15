@@ -1,86 +1,103 @@
 import os
 import glob
 import pandas as pd
-from flask import jsonify
-from app import app
 import numpy as np
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import JSONResponse
 
+router = APIRouter()
 
-#================= Fonction pour normaliser les dates
+# 📂 Dossiers des fichiers CSV
+FOLDER_PATH = "backend/app/data/Trace/"
+FOLDER_PATH_SESSION = "backend/app/data/Session/"
+
+# 📌 Fonction pour normaliser les dates
 def format_dates(df):
-    column_rename = {"Moment du ping" : "Moment_du_ping"}
+    column_rename = {"Moment du ping": "Moment_du_ping" ,
+                     "throuput": "Throuput" }
     df.rename(columns=column_rename, inplace=True)
 
-
-    date_columns = ["Date_Performance", "Moment_du_ping"]  # Colonnes à formater
-
+    date_columns = ["Date_Performance", "Moment_du_ping"]
     for col in date_columns:
         if col in df.columns:
-            df[col] = pd.to_datetime(df[col], errors="coerce")  # Convertir en datetime, gérer erreurs
-            df[col] = df[col].dt.strftime("%Y-%m-%d %H:%M:%S")  # Uniformiser en YYYY-MM-DD HH:mm:ss
+            df[col] = pd.to_datetime(df[col], errors="coerce")
+            df[col] = df[col].dt.strftime("%Y-%m-%d %H:%M:%S")
 
     return df
 
-@app.route('/api/data', methods=['GET'])
-def get_data():
-    folder_path = "backend/app/data/Trace/"  # Dossier contenant les fichiers CSV
-    csv_files = glob.glob(os.path.join(folder_path, "*.csv"))  # Liste de tous les fichiers CSV
-    
+# 📌 Route pour récupérer **toutes** les données (🚀 sans pagination)
+@router.get("/api/data")
+async def get_all_data():
+    csv_files = glob.glob(os.path.join(FOLDER_PATH, "*.csv"))
+
     if not csv_files:
-        return jsonify({"error": "Aucun fichier CSV trouvé"}), 404
+        raise HTTPException(status_code=404, detail="Aucun fichier trouvé")
 
-    all_data = []  # Liste pour stocker les données
-
+    all_data = []
     for file in csv_files:
-        df = pd.read_csv(file)  # Lire le CSV
+        df = pd.read_csv(file, encoding="utf-8", on_bad_lines="skip")
+        df = format_dates(df)
+        df = df[["Moment_du_ping", "Latence", "server_name", "Technologie_Reseau", "Ville","Input","Output", "ID_user", "Throuput", "Jitter"]]  # ⬅️ Réduire la taille du JSON
         df["source_file"] = os.path.basename(file)  # Ajouter une colonne pour identifier la source
-        df = format_dates(df)  #  Normaliser les dates
         all_data.append(df)
 
-    final_df = pd.concat(all_data, ignore_index=True)  # Fusionner tous les fichiers en un seul DataFrame
+    final_df = pd.concat(all_data, ignore_index=True)
     final_df = final_df.replace({np.nan: None})
 
-    return jsonify(final_df.to_dict(orient='records'))  # Convertir en JSON et retourner
+    return JSONResponse(content=final_df.to_dict(orient="records"))
 
-
-@app.route('/api/data/<filename>', methods=['GET'])
-def get_specific_data(filename):
-    folder_path = "backend/app/data/Trace/"
-    file_path = os.path.join(folder_path, filename)
+# 📌 Route pour récupérer un fichier spécifique
+@router.get("/api/data/{filename}")
+async def get_specific_data(filename: str):
+    file_path = os.path.join(FOLDER_PATH, filename)
 
     if not os.path.exists(file_path):
-        return jsonify({"error": f"Fichier {filename} introuvable"}), 404
+        raise HTTPException(status_code=404, detail=f"Fichier {filename} introuvable")
 
-    df = pd.read_csv(file_path)
-    df = format_dates(df)
-    return jsonify(df.to_dict(orient='records'))
+    try:
+        df = pd.read_csv(file_path, encoding="utf-8", on_bad_lines="skip")
+        df = format_dates(df)
 
-@app.route('/api/files', methods=['GET'])
-def get_files():
-    folder_path = "backend/app/data/Trace/"
-    csv_files = glob.glob(os.path.join(folder_path, "*.csv"))
-    
+        if "server_name" not in df.columns:
+            raise HTTPException(status_code=400, detail="Colonne 'server_name' manquante dans le fichier")
+
+        expected_columns = ["Moment_du_ping", "Latence", "server_name", "Jitter", "Packetloss", "Throuput"]
+        for col in expected_columns:
+            if col not in df.columns:
+                df[col] = None
+
+
+        df = df.replace({np.nan: None})
+
+        return JSONResponse(content=df.to_dict(orient="records"))
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la lecture du fichier: {str(e)}")
+
+# 📌 Route pour obtenir la liste des fichiers
+@router.get("/api/files")
+async def get_files():
+    csv_files = glob.glob(os.path.join(FOLDER_PATH, "*.csv"))
+
     if not csv_files:
-        return jsonify({"error": "Aucun fichier trouvé"}), 404
+        raise HTTPException(status_code=404, detail="Aucun fichier trouvé")
 
-    file_list = [os.path.basename(file) for file in csv_files]  # Liste des noms de fichiers
-    return jsonify({"files": file_list})
+    file_list = [os.path.basename(file) for file in csv_files]
+    return {"files": file_list}
 
+# 📌 Route pour récupérer les événements (latence élevée, jitter, débit faible)
+@router.get("/api/events")
+async def get_events():
+    csv_files = glob.glob(os.path.join(FOLDER_PATH, "*.csv"))
 
-@app.route('/api/events', methods=['GET'])
-def get_events():
-    folder_path = "backend/app/data/Trace/"  # Récupérer les fichiers de données
-    csv_files = glob.glob(os.path.join(folder_path, "*.csv"))
-    
     if not csv_files:
-        return jsonify({"error": "Aucun fichier de données trouvé"}), 404
+        raise HTTPException(status_code=404, detail="Aucun fichier de données trouvé")
 
     events = []
-    
     for file in csv_files:
-        df = pd.read_csv(file)
+        df = pd.read_csv(file, encoding="utf-8", on_bad_lines="skip")
         df = format_dates(df)
-        
+
         for _, row in df.iterrows():
             if row.get("Latence", 0) > 200:
                 events.append({
@@ -89,7 +106,6 @@ def get_events():
                     "timestamp": row.get("Date_Performance", "Inconnu"),
                     "file": os.path.basename(file)
                 })
-            
             if row.get("Jitter", 0) > 100:
                 events.append({
                     "type": "Jitter excessif",
@@ -97,7 +113,6 @@ def get_events():
                     "timestamp": row.get("Date_Performance", "Inconnu"),
                     "file": os.path.basename(file)
                 })
-            
             if row.get("Throuput", 10000) < 500:
                 events.append({
                     "type": "Débit faible",
@@ -105,76 +120,41 @@ def get_events():
                     "timestamp": row.get("Date_Performance", "Inconnu"),
                     "file": os.path.basename(file)
                 })
-    
-    return jsonify(events)
 
-@app.route('/api/sessions', methods=['GET'])
-def get_sessions():
-    folder_path = "backend/app/data/Session/"  # Dossier contenant les fichiers de sessions
-    csv_files = glob.glob(os.path.join(folder_path, "*.csv"))  # Liste de tous les fichiers CSV
-    
+    return events
+
+# 📌 Route pour récupérer les statistiques globales
+@router.get("/api/stats")
+async def get_stats():
+    csv_files = glob.glob(os.path.join(FOLDER_PATH, "*.csv"))
+
     if not csv_files:
-        return jsonify({"error": "Aucun fichier de session trouvé"}), 404
-
-    all_data = []  # Liste pour stocker les sessions
-
-    for file in csv_files:
-        df = pd.read_csv(file)  # Lire le CSV
-        df["source_file"] = os.path.basename(file)  # Ajouter une colonne pour identifier la source
-        df = format_dates(df)  # Normaliser les dates
-        all_data.append(df)
-
-    final_df = pd.concat(all_data, ignore_index=True)  # Fusionner tous les fichiers en un seul DataFrame
-    final_df = final_df.replace({np.nan: None})
-
-    return jsonify(final_df.to_dict(orient='records'))  # Convertir en JSON et retourner
-
-import os
-import glob
-import pandas as pd
-import numpy as np
-from flask import jsonify
-from app import app
-
-# ================= API pour récupérer les statistiques globales =================
-@app.route('/api/stats', methods=['GET'])
-def get_stats():
-    folder_path = "backend/app/data/Trace/"  # Dossier contenant les fichiers CSV des traces
-    csv_files = glob.glob(os.path.join(folder_path, "*.csv"))  # Liste des fichiers CSV
-    
-    if not csv_files:
-        return jsonify({
+        return {
             "totalTests": 0,
             "avgLatency": 0.0,
             "maxLatency": 0
-        })
+        }
 
-    all_data = []  # Stocker toutes les données
-    
+    all_data = []
     for file in csv_files:
-        df = pd.read_csv(file)
+        df = pd.read_csv(file, encoding="utf-8", on_bad_lines="skip")
         all_data.append(df)
 
-    # Fusionner tous les fichiers CSV en un seul DataFrame
     final_df = pd.concat(all_data, ignore_index=True)
-    
-    # Vérifier que la colonne "Latence" existe
+
     if "Latence" not in final_df.columns:
-        return jsonify({
+        return {
             "totalTests": len(final_df),
             "avgLatency": 0.0,
             "maxLatency": 0
-        })
+        }
 
-    # Calculer les statistiques
     total_tests = len(final_df)
     avg_latency = final_df["Latence"].mean() if not final_df["Latence"].isna().all() else 0.0
     max_latency = final_df["Latence"].max() if not final_df["Latence"].isna().all() else 0
 
-    return jsonify({
+    return {
         "totalTests": total_tests,
         "avgLatency": round(avg_latency, 2),
         "maxLatency": max_latency
-    })
-
-
+    }

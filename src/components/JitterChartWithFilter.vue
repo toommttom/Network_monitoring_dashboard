@@ -117,7 +117,7 @@ export default {
 
     onMounted(async () => {
       try {
-        const response = await axios.get("http://172.20.10.3:5000/api/data");
+        const response = await axios.get("http://127.0.0.1:5000/api/data");
         dataRecords.value = response.data;
 
         uniqueUsers.value = [

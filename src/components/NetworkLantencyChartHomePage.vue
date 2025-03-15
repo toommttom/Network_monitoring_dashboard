@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h2>Évolution de la Latence (Tous les Fichiers)</h2>
+    <h2>Évolution de la Latence par Serveur</h2>
 
     <div class="chart-container">
       <canvas ref="latencyChartCanvas"></canvas>
@@ -27,57 +27,75 @@ export default {
       "rgba(255, 159, 64, 1)",
     ];
 
-    // Fonction pour récupérer tous les fichiers et leurs données
+    // Fonction pour récupérer les données de tous les fichiers
     const fetchAllData = async () => {
       try {
-        const response = await axios.get("http://172.20.10.3:5000/api/files");
+        const response = await axios.get("http://127.0.0.1:5000/api/files");
         const files = response.data.files;
 
+        console.log("📁 Fichiers récupérés :", files);
+
         const allDataPromises = files.map((file) =>
-          axios.get(`http://172.20.10.3:5000/api/data/${file}`).then((res) => ({
-            fileName: file,
-            data: res.data,
-          }))
+          axios
+            .get(`http://127.0.0.1:5000/api/data/${file}`)
+            .then((res) => ({ file, data: res.data })) // Associe le fichier aux données
+            .catch((error) => {
+              console.error(`❌ Erreur sur ${file}:`, error);
+              return { file, data: [] }; // Retourne une liste vide en cas d'erreur pour éviter de bloquer
+            })
         );
 
-        const allData = await Promise.all(allDataPromises);
+        const allDataResults = await Promise.allSettled(allDataPromises);
+
+        // Extraire les données valides
+        const allData = allDataResults
+          .filter((result) => result.status === "fulfilled") // Garder seulement les requêtes réussies
+          .flatMap((result) => result.value.data); // Fusionner toutes les données
+
+        console.log("✅ Données combinées :", allData.length, "lignes");
+
         updateLatencyChart(allData);
       } catch (error) {
         console.error(
-          "Erreur lors du chargement des fichiers et données :",
+          "❌ Erreur lors du chargement des fichiers et données :",
           error
         );
       }
     };
 
-    const getDynamicFontSize = () => {
-      return Math.max(5, window.innerWidth * 0.006); // Ajuste dynamiquement (min: 10px)
-    };
+    // Mise à jour du graphique avec toutes les latences
+    const updateLatencyChart = (allData) => {
+      // Regrouper les données par serveur
+      const servers = {};
+      allData.forEach((entry) => {
+        if (!servers[entry.server_name]) {
+          servers[entry.server_name] = [];
+        }
+        servers[entry.server_name].push({
+          moment: entry.Moment_du_ping,
+          latence: entry.Latence,
+        });
+      });
 
-    // Mise à jour du graphique avec plusieurs fichiers
-    const updateLatencyChart = (filesData) => {
-      // Récupérer et fusionner tous les timestamps
-      let allMoments = filesData.flatMap((file) =>
-        file.data.map((item) => item.Moment_du_ping)
-      );
+      // Fusionner tous les timestamps en ordre chronologique unique
+      let allMoments = [
+        ...new Set(allData.map((item) => item.Moment_du_ping)),
+      ].sort();
 
-      // Trier les timestamps en ordre chronologique et supprimer les doublons
-      const labels = [...new Set(allMoments)].sort();
-
-      // Créer les datasets
-      const datasets = filesData.map((fileData, index) => ({
-        label: fileData.fileName,
-        data: labels.map((moment) => {
-          const found = fileData.data.find(
-            (item) => item.Moment_du_ping === moment
+      // Créer les datasets pour chaque serveur
+      const datasets = Object.keys(servers).map((server, index) => ({
+        label: server,
+        data: allMoments.map((moment) => {
+          const found = servers[server].find(
+            (entry) => entry.moment === moment
           );
-          return found ? found.Latence : null;
+          return found ? found.latence : null;
         }),
         borderColor: colors[index % colors.length],
         backgroundColor: colors[index % colors.length].replace("1)", "0.2)"),
         fill: true,
         tension: 0.4,
-        spanGaps: true, // Ignore les valeurs nulles pour éviter les interruptions de ligne
+        spanGaps: false,
       }));
 
       // Détruire l'ancien graphique s'il existe
@@ -85,10 +103,13 @@ export default {
         latencyChartInstance.value.destroy();
       }
 
-      // Créer le graphique
+      const getDynamicFontSize = () => {
+        return Math.max(5, window.innerWidth * 0.006); // Ajuste dynamiquement (min: 10px)
+      };
+      // Créer le graphique unique avec toutes les séries
       latencyChartInstance.value = new Chart(latencyChartCanvas.value, {
         type: "line",
-        data: { labels, datasets },
+        data: { labels: allMoments, datasets },
         options: {
           responsive: true,
           maintainAspectRatio: false,
@@ -126,7 +147,12 @@ export default {
 </script>
 
 <style scoped>
-/* Style du graphique */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .chart-container {
   background: white;
   padding: 20px;
@@ -139,10 +165,5 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-}
-
-.chart-container .chartjs-legend {
-  max-height: 20vh; /* Définit une hauteur max */
-  overflow-y: auto; /* Active le scroll vertical */
 }
 </style>

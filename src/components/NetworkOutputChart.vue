@@ -67,7 +67,7 @@ export default {
     // Fonction pour charger les données et initialiser le graphique
     const loadChartData = async () => {
       try {
-        const response = await axios.get("http://172.20.10.3:5000/api/data");
+        const response = await axios.get("http://127.0.0.1:5000/api/data");
         const data = response.data;
 
         const outputCounts = {};

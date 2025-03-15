@@ -57,8 +57,8 @@ export default {
         //  CHOISIR L'API EN FONCTION DU DROPDOWN
         const apiUrl =
           this.selectedDataset === "traces"
-            ? "http://172.20.10.3:5000/api/data"
-            : "http://172.20.10.3:5000/api/sessions";
+            ? "http://127.0.0.1:5000/api/data"
+            : "http://127.0.0.1:5000/api/sessions";
 
         const response = await axios.get(apiUrl);
         const data = response.data;
@@ -98,6 +98,11 @@ export default {
         LILLE: [50.6292, 3.0573],
         TOULOUSE: [43.6045, 1.444],
         BORDEAUX: [44.8378, -0.5792],
+        Msambweni: [-4.4723, 39.4873],
+        DEFENSE: [48.8924, 2.2389],
+        Mombasa: [-4.0435, 39.6682],
+        MEAUX: [48.9601, 2.8883],
+        IVRY: [48.8156, 2.3876],
       };
 
       // Filtrer les données selon la technologie sélectionnée
@@ -142,12 +147,14 @@ export default {
           const marker = L.marker(coordinates, { icon: markerIcon }).addTo(
             this.map
           ).bindPopup(`
-        <strong>${item.Ville}</strong><br>
-        📶 Technologie : ${item.Technologie_Reseau}<br>
-        ⏳ Latence : ${item.Latence.toFixed(2)} ms<br>
-        🔄 Jitter : ${item.Jitter.toFixed(2)} ms<br>
-        🚀 Débit : ${item.Throuput.toFixed(2)} kbps
-      `);
+  <strong>${item.Ville || "Ville inconnue"}</strong><br>
+  📶 Technologie : ${item.Technologie_Reseau || "Non précisé"}<br>
+  ⏳ Latence : ${
+    item.Latence ? item.Latence.toFixed(2) : "Non disponible"
+  } ms<br>
+  🔄 Jitter : ${item.Jitter ? item.Jitter.toFixed(2) : "Non disponible"} ms<br>
+  🚀 Débit : ${item.Throuput ? item.Throuput.toFixed(2) : "Non disponible"} kbps
+`);
 
           this.markers.push(marker);
         }

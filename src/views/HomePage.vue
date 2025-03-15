@@ -75,7 +75,7 @@ export default {
   methods: {
     async fetchStats() {
       try {
-        const response = await axios.get("http://localhost:5000/api/stats");
+        const response = await axios.get("http://127.0.0.1:5000/api/stats");
         this.totalTests = response.data.totalTests;
         this.avgLatency = response.data.avgLatency;
         this.maxLatency = response.data.maxLatency;
@@ -85,7 +85,7 @@ export default {
     },
     async fetchRecentEvents() {
       try {
-        const response = await axios.get("http://localhost:5000/api/events");
+        const response = await axios.get("http://127.0.0.1:5000/api/events");
         this.recentEvents = response.data.slice(0, 5); // Récupère les 5 derniers événements
       } catch (error) {
         console.error("Erreur lors de la récupération des événements:", error);
