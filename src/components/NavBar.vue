@@ -12,7 +12,9 @@
           <router-link to="/map" active-class="active">Map</router-link>
         </li>
         <li>
-          <router-link to="/alerte" active-class="active">Alerte</router-link>
+          <router-link to="/predi" active-class="active"
+            >Prediction</router-link
+          >
         </li>
       </ul>
     </nav>

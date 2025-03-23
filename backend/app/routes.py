@@ -4,6 +4,14 @@ import pandas as pd
 import numpy as np
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from fastapi.responses import StreamingResponse
+import io
 
 router = APIRouter()
 
@@ -11,7 +19,7 @@ router = APIRouter()
 FOLDER_PATH = "backend/app/data/Trace/"
 FOLDER_PATH_SESSION = "backend/app/data/Session/"
 
-# 📌 Fonction pour normaliser les dates
+#  Fonction pour normaliser les dates
 def format_dates(df):
     column_rename = {"Moment du ping": "Moment_du_ping" ,
                      "throuput": "Throuput" }
@@ -25,7 +33,7 @@ def format_dates(df):
 
     return df
 
-# 📌 Route pour récupérer **toutes** les données (🚀 sans pagination)
+#  Route pour récupérer les données 
 @router.get("/api/data")
 async def get_all_data():
     csv_files = glob.glob(os.path.join(FOLDER_PATH, "*.csv"))
@@ -37,7 +45,7 @@ async def get_all_data():
     for file in csv_files:
         df = pd.read_csv(file, encoding="utf-8", on_bad_lines="skip")
         df = format_dates(df)
-        df = df[["Moment_du_ping", "Latence", "server_name", "Technologie_Reseau", "Ville","Input","Output", "ID_user", "Throuput", "Jitter"]]  # ⬅️ Réduire la taille du JSON
+        df = df[["Moment_du_ping", "Latence", "server_name", "Technologie_Reseau", "Ville","Input","Output", "ID_user", "Throuput", "Jitter"]]  # Réduire la taille du JSON
         df["source_file"] = os.path.basename(file)  # Ajouter une colonne pour identifier la source
         all_data.append(df)
 
@@ -46,7 +54,7 @@ async def get_all_data():
 
     return JSONResponse(content=final_df.to_dict(orient="records"))
 
-# 📌 Route pour récupérer un fichier spécifique
+#  Route pour récupérer un fichier spécifique
 @router.get("/api/data/{filename}")
 async def get_specific_data(filename: str):
     file_path = os.path.join(FOLDER_PATH, filename)
@@ -176,3 +184,91 @@ async def get_stats():
         "avgLatency": round(avg_latency, 2),
         "maxLatency": max_latency
     }
+
+
+@router.get("/api/clustering-plot")
+async def get_clustering_plot():
+    # Charger les données (même logique que ton script actuel)
+    file_path = os.path.join(FOLDER_PATH, "data_tracesV2-P1.csv")
+    df = pd.read_csv(file_path)
+    df = df.dropna(subset=['Latence'])
+    df.rename(columns={"Moment du ping": "Moment_du_ping", "throuput": "Throuput"}, inplace=True)
+    df['Moment_du_ping'] = pd.to_datetime(df['Moment_du_ping'], errors='coerce')
+    df = df.dropna(subset=['Moment_du_ping'])
+    df['Heure'] = df['Moment_du_ping'].dt.hour
+    df['Jour'] = df['Moment_du_ping'].dt.dayofweek
+    df['Ville_Code'] = LabelEncoder().fit_transform(df['Ville'])
+
+    features = ['Latence', 'Jitter', 'Heure', 'Jour', 'Ville_Code']
+    X = df[features]
+    X_scaled = StandardScaler().fit_transform(X)
+
+    kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
+    df['Cluster'] = kmeans.fit_predict(X_scaled)
+
+    # 📊 Création du graphe
+    fig, ax = plt.subplots(figsize=(10, 6))
+    scatter = ax.scatter(df['Heure'], df['Latence'], c=df['Cluster'], cmap='viridis', alpha=0.6)
+    plt.colorbar(scatter, label="Cluster")
+    ax.set_xlabel("Heure de la journée")
+    ax.set_ylabel("Latence (ms)")
+    ax.set_title("Clusters de latence en fonction de l'heure")
+    ax.grid(True)
+
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format="png")
+    buffer.seek(0)
+    plt.close(fig)
+
+    return StreamingResponse(buffer, media_type="image/png")
+
+@router.get("/api/random-forest-plot")
+async def get_random_forest_plot():
+    file_path = os.path.join(FOLDER_PATH, "data_tracesV2-P1.csv")
+    df = pd.read_csv(file_path)
+
+    df.rename(columns={"Moment du ping": "Moment_du_ping", "throuput": "Throuput"}, inplace=True)
+    df['Moment_du_ping'] = pd.to_datetime(df['Moment_du_ping'], errors='coerce')
+    df = df.dropna(subset=['Moment_du_ping'])
+    df['Heure'] = df['Moment_du_ping'].dt.hour
+    df['Jour'] = df['Moment_du_ping'].dt.dayofweek
+    df['Ville_Code'] = LabelEncoder().fit_transform(df['Ville'])
+
+    features = ['Jitter', 'Heure', 'Jour', 'Ville_Code', 'Throuput']
+    target = 'Latence'
+    df = df.dropna(subset=features + [target])
+
+    X = df[features]
+    y = df[target]
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+
+    model = RandomForestRegressor(n_estimators=100, random_state=42)
+    model.fit(X_train_scaled, y_train)
+    y_pred = model.predict(X_test_scaled)
+
+    # 📊 Création du graphe
+    fig, ax = plt.subplots(figsize=(8, 5))
+    ax.scatter(y_test, y_pred, alpha=0.5, color='blue')
+    ax.plot(
+        [min(y_test), max(y_test)],
+        [min(y_test), max(y_test)],
+        color='red',
+        linestyle='dashed'
+    )
+    ax.set_xlabel("Valeurs réelles de Latence")
+    ax.set_ylabel("Valeurs prédites de Latence")
+    ax.set_title("Prédiction de la latence avec RandomForest")
+    ax.grid(True)
+
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format="png")
+    buffer.seek(0)
+    plt.close(fig)
+
+    return StreamingResponse(buffer, media_type="image/png")

@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomePage from "../views/HomePage.vue";
 import MapPage from "../views/MapPage.vue";
-import AlertePage from "@/views/AlertePage.vue";
+import PrediPage from "@/views/PrediPage.vue";
 import ViewPage from "@/views/ViewPage.vue";
 
 const routes = [
@@ -16,9 +16,9 @@ const routes = [
     component: MapPage,
   },
   {
-    path: "/alerte",
-    name: "alerte",
-    component: AlertePage,
+    path: "/predi",
+    name: "predi",
+    component: PrediPage,
   },
   {
     path: "/view",
