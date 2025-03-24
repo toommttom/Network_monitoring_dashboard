@@ -206,7 +206,7 @@ async def get_clustering_plot():
     kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
     df['Cluster'] = kmeans.fit_predict(X_scaled)
 
-    # 📊 Création du graphe
+    #  Création du graphe
     fig, ax = plt.subplots(figsize=(10, 6))
     scatter = ax.scatter(df['Heure'], df['Latence'], c=df['Cluster'], cmap='viridis', alpha=0.6)
     plt.colorbar(scatter, label="Cluster")
@@ -252,7 +252,7 @@ async def get_random_forest_plot():
     model.fit(X_train_scaled, y_train)
     y_pred = model.predict(X_test_scaled)
 
-    # 📊 Création du graphe
+    #  Création du graphe
     fig, ax = plt.subplots(figsize=(8, 5))
     ax.scatter(y_test, y_pred, alpha=0.5, color='blue')
     ax.plot(
@@ -272,3 +272,46 @@ async def get_random_forest_plot():
     plt.close(fig)
 
     return StreamingResponse(buffer, media_type="image/png")
+
+
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
+@router.get("/api/random-forest-metrics")
+async def get_random_forest_metrics():
+    file_path = os.path.join(FOLDER_PATH, "data_tracesV2-P1.csv")
+    df = pd.read_csv(file_path)
+
+    df.rename(columns={"Moment du ping": "Moment_du_ping", "throuput": "Throuput"}, inplace=True)
+    df['Moment_du_ping'] = pd.to_datetime(df['Moment_du_ping'], errors='coerce')
+    df = df.dropna(subset=['Moment_du_ping'])
+    df['Heure'] = df['Moment_du_ping'].dt.hour
+    df['Jour'] = df['Moment_du_ping'].dt.dayofweek
+    df['Ville_Code'] = LabelEncoder().fit_transform(df['Ville'])
+
+    features = ['Jitter', 'Heure', 'Jour', 'Ville_Code', 'Throuput']
+    target = 'Latence'
+    df = df.dropna(subset=features + [target])
+
+    X = df[features]
+    y = df[target]
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+
+    model = RandomForestRegressor(n_estimators=100, random_state=42)
+    model.fit(X_train_scaled, y_train)
+    y_pred = model.predict(X_test_scaled)
+
+    mae = mean_absolute_error(y_test, y_pred)
+    mse = mean_squared_error(y_test, y_pred)
+    r2 = r2_score(y_test, y_pred)
+
+    return {
+        "MAE": round(mae, 2),
+        "MSE": round(mse, 2),
+        "R2": round(r2, 2)
+    }
